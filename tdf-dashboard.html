@@ -28,12 +28,14 @@ header{border-bottom:1px solid #1e1e1e;padding:0 24px;height:52px;display:flex;a
 .logo{font-size:14px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
 .logo em{color:#f5c518;font-style:normal}
 .logo-ver{font-size:10px;font-weight:400;color:#333}
+.logo-abbr{display:none}
 nav a{font-size:11px;font-weight:600;color:#444;margin-left:22px;text-transform:uppercase;letter-spacing:.08em;transition:color .15s}
 nav a:hover{color:#f0f0f0}
 nav a.active{color:#f5c518}
 @media(max-width:600px){
   header{padding:0 16px}
   .logo-wordmark{display:none}
+  .logo-abbr{display:inline}
   nav a{margin-left:14px;font-size:10px}
 }
 
@@ -96,12 +98,11 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .card-link .s{font-size:12px;color:#666;margin-top:2px}
 
 .loading{color:#444;font-size:13px;padding:40px 0;text-align:center}
-.map-card{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:16px;margin-bottom:24px}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">🚴 <span class="logo-wordmark">Tour de France </span><em>2026</em></div>
+  <div class="logo">🚴 <span class="logo-wordmark">Tour de France </span><span class="logo-abbr">TdF </span><em>2026</em></div>
   <nav>
     <a href="tdf-dashboard.html" class="active">Today</a>
     <a href="tdf-route.html">Route</a>
@@ -128,45 +129,46 @@ function climbChips(climbs){
   }).join('')}</div>`;
 }
 
-const TERRAIN_DOT = { flat:'#38bdf8', hilly:'#f59e0b', mountain:'#ef4444', itt:'#a78bfa', ttt:'#a78bfa' };
+const CAT_HEIGHT = { HC:0.95, '1':0.75, '2':0.58, '3':0.42, '4':0.28 };
+const CAT_COLOR  = { HC:'#ef4444', '1':'#f59e0b', '2':'#eab308', '3':'#84cc16', '4':'#22c55e' };
 
-function buildRouteMap(stages, geo, todayStr, highlightN, width, height){
-  const pts = stages.filter(s => s.n > 0).map(s => {
-    const coord = geo[s.finish] || geo[s.start];
-    return coord ? { ...s, lat: coord.lat, lon: coord.lon } : null;
-  }).filter(Boolean);
-  if(!pts.length) return '';
+function buildClimbProfile(stage, width, height){
+  const climbs = stage.climbs || [];
+  if(!climbs.length) return '';
 
-  const pad = 0.4;
-  const lats = pts.map(p=>p.lat), lons = pts.map(p=>p.lon);
-  const latMin = Math.min(...lats)-pad, latMax = Math.max(...lats)+pad;
-  const lonMin = Math.min(...lons)-pad, lonMax = Math.max(...lons)+pad;
-  const proj = (lat,lon) => [
-    (lon-lonMin)/(lonMax-lonMin) * width,
-    (latMax-lat)/(latMax-latMin) * height
-  ];
+  const baseY = height - 30;
+  const topPad = 12;
+  const maxH = baseY - topPad;
+  const n = climbs.length;
+  const slotW = width / n;
 
-  const coords = pts.map(p => proj(p.lat, p.lon));
-  const linePoints = coords.map(c => c.join(',')).join(' ');
+  let d = `M 0,${baseY}`;
+  let markers = '';
+  climbs.forEach((c, i) => {
+    const catKey = c.category ? String(c.category) : '3';
+    const h = (CAT_HEIGHT[catKey] || 0.35) * maxH;
+    const apexY = baseY - h;
+    const slotStart = i*slotW, slotEnd = (i+1)*slotW;
+    const apexX = (slotStart + slotEnd) / 2;
+    const riseX = slotStart + slotW*0.15;
+    const descendX = slotEnd - slotW*0.15;
+    d += ` Q ${slotStart+slotW*0.28},${baseY} ${riseX},${baseY - h*0.5}`;
+    d += ` Q ${apexX - slotW*0.1},${apexY} ${apexX},${apexY}`;
+    d += ` Q ${apexX + slotW*0.1},${apexY} ${descendX},${baseY - h*0.5}`;
+    d += ` Q ${slotEnd - slotW*0.28},${baseY} ${slotEnd},${baseY}`;
 
-  let dots = '';
-  pts.forEach((p, i) => {
-    const [x,y] = coords[i];
-    const isPast = p.date < todayStr;
-    const isCurrent = p.n === highlightN;
-    if(isCurrent){
-      dots += `<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="#f5c518" stroke-width="1.5" opacity="0.5"><animate attributeName="r" values="7;12;7" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/></circle>`;
-      dots += `<circle cx="${x}" cy="${y}" r="6" fill="#f5c518"/>`;
-      dots += `<text x="${x + (x > width-90 ? -10 : 10)}" y="${y+4}" font-size="11" font-weight="700" fill="#f5c518" text-anchor="${x > width-90 ? 'end' : 'start'}">S${p.n} ${p.finish}</text>`;
-    } else {
-      const color = isPast ? '#3a3a3a' : (TERRAIN_DOT[p.type] || '#666');
-      dots += `<circle cx="${x}" cy="${y}" r="3" fill="${color}" opacity="${isPast ? 1 : 0.85}"><title>Stage ${p.n} · ${p.finish}</title></circle>`;
-    }
+    const color = CAT_COLOR[catKey] || '#888';
+    const label = c.category ? (c.category === 'HC' ? 'HC' : `Cat ${c.category}`) : '';
+    const shortName = c.name.length > 18 ? c.name.slice(0,17)+'…' : c.name;
+    markers += `<circle cx="${apexX}" cy="${apexY}" r="2.5" fill="${color}"/>`;
+    if(label) markers += `<text x="${apexX}" y="${Math.max(apexY-8,10)}" font-size="9" font-weight="700" fill="${color}" text-anchor="middle">${label}</text>`;
+    markers += `<text x="${apexX}" y="${height-8}" font-size="8" fill="#666" text-anchor="middle">${shortName}</text>`;
   });
 
   return `<svg viewBox="0 0 ${width} ${height}" width="100%" style="display:block">
-    <polyline points="${linePoints}" fill="none" stroke="#262626" stroke-width="1.5"/>
-    ${dots}
+    <path d="${d}" fill="rgba(239,68,68,0.07)" stroke="#3a3a3a" stroke-width="1.5"/>
+    <line x1="0" y1="${baseY}" x2="${width}" y2="${baseY}" stroke="#222" stroke-width="1"/>
+    ${markers}
   </svg>`;
 }
 
@@ -187,7 +189,6 @@ async function tryFetch(url){
 async function main(){
   const route = await tryFetch('data/route.json');
   const standings = await tryFetch('data/standings.json');
-  const geo = await tryFetch('data/geo.json');
   const app = document.getElementById('app');
   if(!route){ app.innerHTML = '<div class="loading">Could not load race data.</div>'; return; }
 
@@ -221,15 +222,6 @@ async function main(){
     </div>
   </div>`;
 
-  // Route map
-  if(geo){
-    const highlightN = (phase === 'stage') ? todayStage.n : (upcoming ? upcoming.n : (completed ? completed.n : null));
-    const mapSvg = buildRouteMap(stages, geo, todayStr, highlightN, 400, 340);
-    if(mapSvg){
-      html += `<div class="section-label">Route Overview</div><div class="map-card">${mapSvg}</div>`;
-    }
-  }
-
   // Jersey snapshot
   if(standings){
     html += `<div class="section-label">Current Jerseys — after Stage ${standings.stage}</div><div class="jersey-grid">`;
@@ -248,6 +240,7 @@ async function main(){
       ${terrainBadge(spotlight.type, TERRAIN_LABEL[spotlight.type])}
       <div class="stage-route">Stage ${spotlight.n} · ${spotlight.start} → ${spotlight.finish}</div>
       <div class="stage-meta">${spotlight.distanceKm} km · ${spotlight.date}</div>
+      ${buildClimbProfile(spotlight, 400, 130)}
       ${climbChips(spotlight.climbs)}
       <div class="storyline">${spotlight.storyline}</div>
     </div>`;
