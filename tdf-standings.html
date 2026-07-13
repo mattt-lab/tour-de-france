@@ -61,7 +61,9 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .rank.top1{color:#f5c518}
 .rider-block{flex:1;min-width:0}
 .rider{font-weight:600;font-size:13px}
-.team{font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team{font-size:11px;color:#555;display:flex;align-items:center;gap:5px;min-width:0}
+.team span.team-name-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .stat{font-variant-numeric:tabular-nums;font-size:12px;color:#aaa;text-align:right;flex-shrink:0}
 .gap-lead{color:#f5c518;font-weight:700}
 
@@ -90,6 +92,37 @@ const CLASSIFICATIONS = [
   { key: 'youth', label: 'Youth', dot: 'dot-white', kind: 'time' },
 ];
 
+// Team accent colors — a mix of real jersey/brand colors (Astana cyan,
+// Quick-Step blue, Alpecin yellow, Movistar teal, EF pink, Ineos navy,
+// Uno-X orange, etc.) and, for less iconic sponsor names, a distinct hue
+// chosen to keep all 23 teams visually separable at a glance.
+const TEAM_COLORS = {
+  'UAE TEAM EMIRATES XRG': '#E2231A',
+  'LIDL-TREK': '#A6192E',
+  'TEAM VISMA | LEASE A BIKE': '#C4D600',
+  'RED BULL - BORA - HANSGROHE': '#1B3A6B',
+  'DECATHLON CMA CGM TEAM': '#0082C3',
+  'EF EDUCATION - EASYPOST': '#EC407A',
+  'NETCOMPANY INEOS CYCLING TEAM': '#1D4E4E',
+  'MOVISTAR TEAM': '#16A085',
+  'PINARELLO-Q36.5 PRO CYCLING TEAM': '#6A3FA0',
+  'TOTALENERGIES': '#E8590C',
+  'UNO-X MOBILITY': '#FF6600',
+  'BAHRAIN VICTORIOUS': '#B71C1C',
+  'SOUDAL QUICK-STEP': '#0072CE',
+  'TUDOR PRO CYCLING TEAM': '#C9A227',
+  'GROUPAMA-FDJ UNITED': '#3B4CCA',
+  'XDS ASTANA TEAM': '#29ABE2',
+  'LOTTO INTERMARCHE': '#FF7F50',
+  'ALPECIN-PREMIER TECH': '#FFD100',
+  'CAJA RURAL-SEGUROS RGA': '#4C9A2A',
+  'COFIDIS': '#D6006C',
+  'TEAM JAYCO ALULA': '#2E8B57',
+  'NSN CYCLING TEAM': '#A67C52',
+  'TEAM PICNIC POSTNL': '#FFA000',
+};
+function teamColor(team){ return TEAM_COLORS[team] || '#555'; }
+
 function renderTable(rows, kind){
   if(!rows || !rows.length) return `<div class="table-card"><div class="row">No data yet.</div></div>`;
   return `<div class="table-card">` + rows.slice(0,25).map((r,i) => {
@@ -99,10 +132,11 @@ function renderTable(rows, kind){
     else if(kind === 'team-time') statVal = r.gap && r.gap !== '-' ? r.gap : (r.times || '');
     else statVal = r.gap && r.gap !== '-' ? r.gap : 'Leader';
     const isLead = statVal === 'Leader';
+    const color = teamColor(r.team);
     const nameLine = kind === 'team-time'
       ? `<div class="rider">${r.team}</div>`
-      : `<div class="rider">${r.rider}</div><div class="team">${r.team}</div>`;
-    return `<div class="row">
+      : `<div class="rider">${r.rider}</div><div class="team"><span class="team-dot" style="background:${color}"></span><span class="team-name-txt">${r.team}</span></div>`;
+    return `<div class="row" style="border-left:3px solid ${color};padding-left:15px">
       <div class="rank ${i===0?'top1':''}">${rank}</div>
       <div class="rider-block">${nameLine}</div>
       <div class="stat ${isLead?'gap-lead':''}">${statVal}</div>
