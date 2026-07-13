@@ -92,94 +92,37 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading route…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.2</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.3</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'ITT', ttt:'TTT', rest:'Rest' };
-const TERRAIN_DOT = { flat:'#38bdf8', hilly:'#f59e0b', mountain:'#ef4444', itt:'#a78bfa', ttt:'#a78bfa' };
 function ymd(d){ return d.toISOString().slice(0,10); }
 
-// Fixed projection frame — must match scripts/build_basemap.py exactly so
-// the baked France/Spain outline lines up with the projected stage dots.
-const MAP_W = 520, MAP_H = 508;
-const MAP_BOUNDS = { lonMin: -1.0, lonMax: 7.8, latMin: 40.7, latMax: 49.3 };
-
-function buildRouteMap(stages, geo, basemap, todayStr, highlightN){
-  const { lonMin, lonMax, latMin, latMax } = MAP_BOUNDS;
-  const proj = (lat,lon) => [
-    (lon-lonMin)/(lonMax-lonMin) * MAP_W,
-    (latMax-lat)/(latMax-latMin) * MAP_H
-  ];
-  const projTown = (town) => { const c = geo[town]; return c ? proj(c.lat, c.lon) : null; };
-
-  const raceStages = stages.filter(s => s.n > 0);
-  if(!raceStages.length) return '';
-
-  // Precompute one line segment per stage's actual start->finish leg, plus
-  // a connector segment when a stage's finish town isn't the next stage's
-  // start town (true for 18 of 21 stages — normal Tour transfers). All
-  // segments render with the same uniform style so the route still reads
-  // as one continuous line, same as before; the highlighted stage is then
-  // redrawn in gold using these exact same coordinates, so it can never
-  // drift out of alignment with the base route beneath it.
-  const legs = [];
-  raceStages.forEach((s, i) => {
-    const p1 = projTown(s.start), p2 = projTown(s.finish);
-    if(p1 && p2) legs.push({ n: s.n, type: 'race', p1, p2, isPast: s.date < todayStr });
-
-    const next = raceStages[i+1];
-    if(next && next.start !== s.finish){
-      const p3 = projTown(next.start);
-      if(p2 && p3) legs.push({ n: s.n, type: 'transfer', p1: p2, p2: p3, isPast: s.date < todayStr });
-    }
-  });
-
-  let land = '';
-  if(basemap){
-    land = `<path d="${basemap.spain || ''}" fill="#132a1c" stroke="#264535" stroke-width="1"/>
-      <path d="${basemap.france || ''}" fill="#15301f" stroke="#2a4a37" stroke-width="1"/>`;
+// Renders the real official ASO route-overview poster (assets/route-map.jpg)
+// with the highlighted stage's actual drawn route curve overlaid in gold.
+// The overlay path was traced by hand off the image itself (cropping each
+// region and reading pixel coordinates directly), then stored as percentage-
+// of-image coordinates in data/route-map-paths.json — so it follows the
+// real curvy road the poster draws, not a straight line between two towns.
+function buildRouteMap(pathsData, highlightN){
+  const path = pathsData && pathsData.stages && pathsData.stages[String(highlightN)];
+  let overlay = '';
+  if(path && path.length){
+    const pts = path.map(([x,y]) => `${x},${y}`).join(' ');
+    const [lx,ly] = path[path.length-1];
+    overlay = `<polyline points="${pts}" fill="none" stroke="#f5c518" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+      <circle cx="${lx}" cy="${ly}" r="1.6" fill="none" stroke="#f5c518" stroke-width="0.4" opacity="0.6">
+        <animate attributeName="r" values="1.2;2.4;1.2" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="${lx}" cy="${ly}" r="1" fill="#f5c518"/>`;
   }
-
-  let routeLines = '';
-  legs.forEach(leg => {
-    const [x1,y1] = leg.p1, [x2,y2] = leg.p2;
-    routeLines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${leg.isPast ? '#4a4a3a' : '#6b6b52'}" stroke-width="1.5" opacity="0.85"/>`;
-  });
-
-  // Highlight overlay — same leg object as above, just restyled, so it's
-  // pixel-identical to the base line rather than an independently computed
-  // (and potentially misaligned) segment.
-  let legLine = '';
-  const hLeg = legs.find(l => l.n === highlightN && l.type === 'race');
-  if(hLeg){
-    const [x1,y1] = hLeg.p1, [x2,y2] = hLeg.p2;
-    legLine = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f5c518" stroke-width="3" stroke-linecap="round" opacity="0.9"/>`;
-  }
-
-  let dots = '';
-  raceStages.forEach(s => {
-    const p = projTown(s.finish) || projTown(s.start);
-    if(!p) return;
-    const [x,y] = p;
-    const isPast = s.date < todayStr;
-    const isCurrent = s.n === highlightN;
-    if(isCurrent){
-      dots += `<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="#f5c518" stroke-width="1.5" opacity="0.5"><animate attributeName="r" values="7;13;7" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/></circle>`;
-      dots += `<circle cx="${x}" cy="${y}" r="6.5" fill="#f5c518"/>`;
-      dots += `<text x="${x + (x > MAP_W-90 ? -11 : 11)}" y="${y+4}" font-size="11" font-weight="700" fill="#f5c518" text-anchor="${x > MAP_W-90 ? 'end' : 'start'}">S${s.n} ${s.finish}</text>`;
-    } else {
-      const color = isPast ? '#4a4a4a' : (TERRAIN_DOT[s.type] || '#666');
-      dots += `<circle cx="${x}" cy="${y}" r="3.5" fill="${color}" opacity="${isPast ? 1 : 0.9}"><title>Stage ${s.n} · ${s.finish}</title></circle>`;
-    }
-  });
-
-  return `<svg viewBox="0 0 ${MAP_W} ${MAP_H}" width="100%" style="display:block;overflow:hidden;border-radius:8px">
-    <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="#0d2438"/>
-    ${land}
-    ${routeLines}
-    ${legLine}
-    ${dots}
-  </svg>`;
+  return `<div style="position:relative">
+    <img src="assets/route-map.jpg" alt="Tour de France 2026 route map" style="width:100%;display:block;border-radius:8px"/>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+      ${overlay}
+    </svg>
+  </div>`;
 }
 
 function climbChips(climbs){
@@ -213,9 +156,8 @@ async function main(){
   let route;
   try { route = await (await fetch('data/route.json')).json(); }
   catch(e){ app.innerHTML = '<div class="loading">Could not load route data.</div>'; return; }
-  let geo = null, basemap = null;
-  try { geo = await (await fetch('data/geo.json')).json(); } catch(e){ /* map is optional */ }
-  try { basemap = await (await fetch('data/basemap.json')).json(); } catch(e){ /* falls back to no land layer */ }
+  let pathsData = null;
+  try { pathsData = await (await fetch('data/route-map-paths.json')).json(); } catch(e){ /* map is optional */ }
 
   const todayStr = ymd(new Date());
   const stages = route.stages;
@@ -227,20 +169,12 @@ async function main(){
   const highlightN = todayStage ? todayStage.n : (upcoming ? upcoming.n : (completed ? completed.n : null));
 
   let html = '';
-  if(geo){
-    const mapSvg = buildRouteMap(stages, geo, basemap, todayStr, highlightN);
-    if(mapSvg){
-      html += `<div class="map-card">${mapSvg}
-        <div class="map-legend">
-          <span><i style="background:#38bdf8"></i>Flat</span>
-          <span><i style="background:#f59e0b"></i>Hilly</span>
-          <span><i style="background:#ef4444"></i>Mountain</span>
-          <span><i style="background:#a78bfa"></i>Time Trial</span>
-          <span><i style="background:#f5c518"></i>Current / Next</span>
-          <span><i style="background:#3a3a3a"></i>Completed</span>
-        </div>
-      </div>`;
-    }
+  if(pathsData){
+    html += `<div class="map-card">${buildRouteMap(pathsData, highlightN)}
+      <div class="map-legend">
+        <span><i style="background:#f5c518"></i>Current / next stage's route</span>
+      </div>
+    </div>`;
   }
 
   html += `<div class="summary">
