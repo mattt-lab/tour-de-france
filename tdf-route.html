@@ -92,34 +92,35 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading route…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.3</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.4</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'ITT', ttt:'TTT', rest:'Rest' };
 function ymd(d){ return d.toISOString().slice(0,10); }
 
 // Renders the real official ASO route-overview poster (assets/route-map.jpg)
-// with the highlighted stage's actual drawn route curve overlaid in gold.
-// The overlay path was traced by hand off the image itself (cropping each
-// region and reading pixel coordinates directly), then stored as percentage-
-// of-image coordinates in data/route-map-paths.json — so it follows the
-// real curvy road the poster draws, not a straight line between two towns.
+// with a pulsing box highlighting the current/next stage's region. Region
+// bounds come from waypoints read by hand off the image itself (cropping
+// each area and reading pixel coordinates), stored in
+// data/route-map-paths.json — but rendered as a bounding box rather than a
+// traced line, since pixel-tracing tiny mountain-stage loops by eye isn't
+// reliable at this map scale, while a highlighted region tolerates that
+// imprecision. The viewBox matches the image's real pixel dimensions
+// (rather than a normalized 0-100 square) so scaling stays uniform and
+// round shapes don't distort.
 function buildRouteMap(pathsData, highlightN){
-  const path = pathsData && pathsData.stages && pathsData.stages[String(highlightN)];
+  const box = pathsData && pathsData.stages && pathsData.stages[String(highlightN)];
+  const vbW = pathsData ? pathsData.imageWidth : 1600;
+  const vbH = pathsData ? pathsData.imageHeight : 1957;
   let overlay = '';
-  if(path && path.length){
-    const pts = path.map(([x,y]) => `${x},${y}`).join(' ');
-    const [lx,ly] = path[path.length-1];
-    overlay = `<polyline points="${pts}" fill="none" stroke="#f5c518" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
-      <circle cx="${lx}" cy="${ly}" r="1.6" fill="none" stroke="#f5c518" stroke-width="0.4" opacity="0.6">
-        <animate attributeName="r" values="1.2;2.4;1.2" dur="2s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="${lx}" cy="${ly}" r="1" fill="#f5c518"/>`;
+  if(box){
+    overlay = `<rect x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" rx="14" fill="none" stroke="#ef4444" stroke-width="5" opacity="0.9">
+        <animate attributeName="opacity" values="0.9;0.35;0.9" dur="1.8s" repeatCount="indefinite"/>
+      </rect>`;
   }
   return `<div style="position:relative">
     <img src="assets/route-map.jpg" alt="Tour de France 2026 route map" style="width:100%;display:block;border-radius:8px"/>
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+    <svg viewBox="0 0 ${vbW} ${vbH}" style="position:absolute;inset:0;width:100%;height:100%">
       ${overlay}
     </svg>
   </div>`;
@@ -172,7 +173,7 @@ async function main(){
   if(pathsData){
     html += `<div class="map-card">${buildRouteMap(pathsData, highlightN)}
       <div class="map-legend">
-        <span><i style="background:#f5c518"></i>Current / next stage's route</span>
+        <span><i style="background:#ef4444;border-radius:3px"></i>Current / next stage</span>
       </div>
     </div>`;
   }

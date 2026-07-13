@@ -1,19 +1,29 @@
 #!/usr/bin/env python3
-"""One-off: bake the manually vision-traced route-line waypoints (read off
-assets/route-map.jpg, the official ASO overall-route poster, by cropping
-and grid-overlaying each region) into percentage-of-image coordinates.
+"""One-off: bake a highlight bounding box per stage, derived from waypoints
+read directly off assets/route-map.jpg (the official ASO overall-route
+poster) by cropping each region, grid-overlaying it, and reading the
+drawn route's pixel coordinates by hand.
 
-Percentages (not raw pixels) so the frontend overlay lines up correctly
-regardless of the image's rendered display size. Run manually if the
-route map image or route ever changes; not part of the scheduled pipeline.
+A bounding box rather than a precise polyline trace: pixel-tracing tiny,
+tightly-looped mountain routes by eye doesn't hold up at this map scale,
+and a highlighted region is more robust to that imprecision than a line
+that's expected to sit exactly on top of hairline road art.
+
+Coordinates are kept in raw image pixels (not percentages) — the
+frontend uses an SVG viewBox matching the image's real 1600x1957 aspect
+ratio, so a single uniform scale factor applies and nothing distorts.
+Run manually if the route map image or route ever changes; not part of
+the scheduled pipeline.
 """
 import json
 from pathlib import Path
 
 IMG_W, IMG_H = 1600, 1957
+MIN_PAD = 35  # minimum padding in px so short/tight stages still get a visible box
 
 # Waypoints traced directly from the map image (pixel space, 1600x1957),
-# one polyline per stage's actual drawn route curve.
+# one polyline per stage's actual drawn route curve — used here only to
+# derive a bounding box, not rendered as a line.
 STAGE_PATHS_PX = {
     1: [(830,1500),(845,1515),(830,1508)],
     2: [(695,1558),(735,1538),(770,1522),(838,1508)],
@@ -38,14 +48,29 @@ STAGE_PATHS_PX = {
     21: [(755,415),(790,430),(820,415),(840,400),(855,390)],
 }
 
+
+def bbox_for(points):
+    xs = [p[0] for p in points]
+    ys = [p[1] for p in points]
+    x0, x1 = min(xs), max(xs)
+    y0, y1 = min(ys), max(ys)
+    padX = max(MIN_PAD, (x1 - x0) * 0.35)
+    padY = max(MIN_PAD, (y1 - y0) * 0.35)
+    return {
+        "x": round(x0 - padX, 1),
+        "y": round(y0 - padY, 1),
+        "w": round((x1 - x0) + padX * 2, 1),
+        "h": round((y1 - y0) + padY * 2, 1),
+        "cx": round((x0 + x1) / 2, 1),
+        "cy": round((y0 + y1) / 2, 1),
+    }
+
+
 out = {
     "imageWidth": IMG_W,
     "imageHeight": IMG_H,
-    "stages": {
-        str(n): [[round(x / IMG_W * 100, 3), round(y / IMG_H * 100, 3)] for x, y in pts]
-        for n, pts in STAGE_PATHS_PX.items()
-    },
+    "stages": {str(n): bbox_for(pts) for n, pts in STAGE_PATHS_PX.items()},
 }
 
 Path("data/route-map-paths.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
-print(f"Wrote data/route-map-paths.json with {len(out['stages'])} stage paths")
+print(f"Wrote data/route-map-paths.json with {len(out['stages'])} stage bounding boxes")
