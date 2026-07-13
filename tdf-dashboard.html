@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tour de France 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚴</text></svg>">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TdF 2026">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tour de France 2026">
+<meta property="og:title" content="Tour de France 2026">
+<meta property="og:description" content="Stage-by-stage storylines, live jerseys, and the road ahead for the 2026 Tour de France.">
+<meta property="og:image" content="https://mattt-lab.github.io/tour-de-france/apple-touch-icon.png">
+<meta property="og:url" content="https://mattt-lab.github.io/tour-de-france/tdf-dashboard.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mattt-lab.github.io/tour-de-france/apple-touch-icon.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0b0b;color:#f0f0f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+header{border-bottom:1px solid #1e1e1e;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#0b0b0b;z-index:100}
+.logo{font-size:14px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.logo em{color:#f5c518;font-style:normal}
+.logo-ver{font-size:10px;font-weight:400;color:#333}
+nav a{font-size:11px;font-weight:600;color:#444;margin-left:22px;text-transform:uppercase;letter-spacing:.08em;transition:color .15s}
+nav a:hover{color:#f0f0f0}
+nav a.active{color:#f5c518}
+
+main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#444;margin-bottom:10px}
+
+/* Phase banner */
+.phase-banner{background:linear-gradient(135deg,#151515,#181818);border:1px solid #222;border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.phase-chip{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f5c518;border:1px solid rgba(245,197,24,.35);border-radius:20px;padding:3px 10px;margin-bottom:8px}
+.phase-title{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.phase-sub{font-size:12px;color:#666;margin-top:3px}
+
+/* Terrain badges */
+.terrain{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:20px;padding:3px 10px}
+.terrain-flat{color:#38bdf8;border:1px solid rgba(56,189,248,.35)}
+.terrain-hilly{color:#f59e0b;border:1px solid rgba(245,158,11,.35)}
+.terrain-mountain{color:#ef4444;border:1px solid rgba(239,68,68,.35)}
+.terrain-itt,.terrain-ttt{color:#a78bfa;border:1px solid rgba(167,139,250,.35)}
+.terrain-rest{color:#666;border:1px solid #333}
+
+/* Stage banner / storyline card */
+.stage-card{background:#111;border:1px solid #1e1e1e;border-radius:16px;padding:22px 20px;margin-bottom:16px}
+.stage-route{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:8px 0 4px}
+.stage-meta{font-size:12px;color:#666}
+.storyline{font-size:14px;line-height:1.6;color:#ccc;margin-top:14px;padding-top:14px;border-top:1px solid #1e1e1e}
+
+/* Climbs */
+.climb-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.climb-chip{font-size:11px;color:#aaa;background:#1a1a1a;border:1px solid #262626;border-radius:8px;padding:4px 9px;display:flex;align-items:center;gap:5px}
+.cat{font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px}
+.cat-HC{background:#7f1d1d;color:#fca5a5}
+.cat-1{background:#78350f;color:#fcd34d}
+.cat-2{background:#1e3a8a;color:#93c5fd}
+.cat-3{background:#14532d;color:#86efac}
+.cat-4{background:#262626;color:#aaa}
+
+/* Jersey snapshot grid */
+.jersey-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:24px}
+.jersey-card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:14px 16px}
+.jersey-label{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dot-yellow{background:#f5c518}
+.dot-green{background:#22c55e}
+.dot-red{background:#ef4444}
+.dot-white{background:#e5e5e5}
+.jersey-rider{font-size:14px;font-weight:700}
+.jersey-detail{font-size:11px;color:#666;margin-top:2px}
+
+/* Result list */
+.result-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #181818;font-size:13px}
+.result-row:last-child{border-bottom:none}
+.result-rank{width:22px;color:#666;font-weight:700;flex-shrink:0}
+.result-rider{flex:1;font-weight:600}
+.result-team{font-size:11px;color:#555}
+.result-gap{color:#888;font-variant-numeric:tabular-nums;font-size:12px}
+
+.card-link{display:block;background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:16px 20px;margin-bottom:12px;transition:border-color .15s}
+.card-link:hover{border-color:#333}
+.card-link .t{font-size:14px;font-weight:700}
+.card-link .s{font-size:12px;color:#666;margin-top:2px}
+
+.loading{color:#444;font-size:13px;padding:40px 0;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><em>Tour</em> de France <span class="logo-ver">2026</span></div>
+  <nav>
+    <a href="tdf-dashboard.html" class="active">Today</a>
+    <a href="tdf-route.html">Route</a>
+    <a href="tdf-standings.html">Standings</a>
+  </nav>
+</header>
+<main id="app">
+  <div class="loading">Loading race data…</div>
+</main>
+
+<script>
+const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
+
+function ymd(d){ return d.toISOString().slice(0,10); }
+function terrainBadge(type, label){
+  return `<span class="terrain terrain-${type}">${label}</span>`;
+}
+function climbChips(climbs){
+  if(!climbs || !climbs.length) return '';
+  return `<div class="climb-list">${climbs.map(c => {
+    const cat = c.category ? `<span class="cat cat-${c.category}">${c.category === 'HC' ? 'HC' : 'Cat '+c.category}</span>` : '';
+    const detail = c.lengthKm ? ` · ${c.lengthKm}km${c.gradient ? ' @ '+c.gradient+'%':''}` : '';
+    return `<span class="climb-chip">${cat}${c.name}${detail}</span>`;
+  }).join('')}</div>`;
+}
+
+function jerseyCard(label, dotClass, row, isTime){
+  if(!row) return `<div class="jersey-card"><div class="jersey-label"><span class="dot ${dotClass}"></span>${label}</div><div class="jersey-detail">—</div></div>`;
+  const detail = isTime ? (row.gap && row.gap !== '-' ? row.gap : 'Leader') : (row.points || row.times || '');
+  return `<div class="jersey-card">
+    <div class="jersey-label"><span class="dot ${dotClass}"></span>${label}</div>
+    <div class="jersey-rider">${row.rider}</div>
+    <div class="jersey-detail">${row.team} · ${detail}</div>
+  </div>`;
+}
+
+async function tryFetch(url){
+  try { const r = await fetch(url); if(!r.ok) return null; return await r.json(); } catch(e){ return null; }
+}
+
+async function main(){
+  const route = await tryFetch('data/route.json');
+  const standings = await tryFetch('data/standings.json');
+  const app = document.getElementById('app');
+  if(!route){ app.innerHTML = '<div class="loading">Could not load race data.</div>'; return; }
+
+  const stages = route.stages;
+  const first = stages[0], last = stages[stages.length-1];
+  const todayStr = ymd(new Date());
+
+  const todayStage = stages.find(s => s.date === todayStr);
+  const completed = stages.filter(s => s.n > 0 && s.date < todayStr).sort((a,b)=>b.n-a.n)[0];
+  const upcoming = stages.filter(s => s.n > 0 && s.date >= todayStr).sort((a,b)=>a.n-b.n)[0];
+
+  let phase, phaseTitle, phaseSub;
+  if(todayStr < first.date){
+    const days = Math.ceil((new Date(first.date) - new Date(todayStr)) / 86400000);
+    phase = 'countdown'; phaseTitle = `${days} days until the Tour`; phaseSub = `Grand Départ — Stage 1, ${first.start}`;
+  } else if(todayStr > last.date){
+    phase = 'complete'; phaseTitle = 'Tour Complete'; phaseSub = `Champs-Élysées, ${last.date}`;
+  } else if(todayStage && todayStage.type === 'rest'){
+    phase = 'rest'; phaseTitle = 'Rest Day'; phaseSub = todayStage.storyline;
+  } else if(todayStage){
+    phase = 'stage'; phaseTitle = `Stage ${todayStage.n} · ${todayStage.start} → ${todayStage.finish}`; phaseSub = `${todayStage.distanceKm} km · ${TERRAIN_LABEL[todayStage.type]}`;
+  } else {
+    phase = 'between'; phaseTitle = 'Between Stages'; phaseSub = upcoming ? `Next: Stage ${upcoming.n}, ${upcoming.date}` : '';
+  }
+
+  let html = `<div class="phase-banner">
+    <div>
+      <div class="phase-chip">${phase === 'rest' ? 'Rest Day' : phase === 'stage' ? 'Stage Day' : phase === 'countdown' ? 'Countdown' : phase === 'complete' ? 'Complete' : 'Between Stages'}</div>
+      <div class="phase-title">${phaseTitle}</div>
+      <div class="phase-sub">${phaseSub}</div>
+    </div>
+  </div>`;
+
+  // Jersey snapshot
+  if(standings){
+    html += `<div class="section-label">Current Jerseys — after Stage ${standings.stage}</div><div class="jersey-grid">`;
+    html += jerseyCard('General Classification', 'dot-yellow', standings.gc[0], true);
+    html += jerseyCard('Points', 'dot-green', standings.points[0], false);
+    html += jerseyCard('Mountains', 'dot-red', standings.mountains[0], false);
+    html += jerseyCard('Youth', 'dot-white', standings.youth[0], true);
+    html += `</div>`;
+  }
+
+  // Upcoming / today stage card
+  const spotlight = (phase === 'stage') ? todayStage : upcoming;
+  if(spotlight){
+    html += `<div class="section-label">${phase === 'stage' ? "Today's Stage" : 'Next Stage'}</div>`;
+    html += `<div class="stage-card">
+      ${terrainBadge(spotlight.type, TERRAIN_LABEL[spotlight.type])}
+      <div class="stage-route">Stage ${spotlight.n} · ${spotlight.start} → ${spotlight.finish}</div>
+      <div class="stage-meta">${spotlight.distanceKm} km · ${spotlight.date}</div>
+      ${climbChips(spotlight.climbs)}
+      <div class="storyline">${spotlight.storyline}</div>
+    </div>`;
+  }
+
+  // Completed stage wrap
+  if(completed){
+    const result = await tryFetch(`data/stage-results/${completed.n}.json`);
+    html += `<div class="section-label">Stage ${completed.n} Result — ${completed.start} → ${completed.finish}</div>`;
+    if(result && result.result && result.result.length){
+      html += `<div class="stage-card">`;
+      result.result.slice(0,5).forEach(r => {
+        html += `<div class="result-row">
+          <div class="result-rank">${r.rank}</div>
+          <div><div class="result-rider">${r.rider}</div><div class="result-team">${r.team}</div></div>
+          <div style="flex:1"></div>
+          <div class="result-gap">${r.gap && r.gap !== '-' ? r.gap : r.times || ''}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    } else {
+      html += `<div class="stage-card"><div class="storyline">${completed.storyline}</div></div>`;
+    }
+  }
+
+  html += `<a class="card-link" href="tdf-route.html"><div class="t">Full Route →</div><div class="s">All 21 stages, climbs, and terrain</div></a>`;
+  html += `<a class="card-link" href="tdf-standings.html"><div class="t">Full Standings →</div><div class="s">GC, Points, Mountains, Youth, Teams</div></a>`;
+
+  app.innerHTML = html;
+}
+
+main();
+</script>
+</body>
+</html>

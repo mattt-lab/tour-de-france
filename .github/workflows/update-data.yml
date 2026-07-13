@@ -1,0 +1,36 @@
+name: Update Tour de France Data
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Every 30 min all day; script exits early on non-stage days
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-and-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-python@v5.6.0
+        with: { python-version: '3.12' }
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Fetch data
+        run: python scripts/fetch_data.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "TdF Data Bot"
+          git config user.email "actions@github.com"
+          git add data/standings.json data/stage-results/
+          if git diff --staged --quiet; then
+            echo "No changes — skipping commit"
+          else
+            git commit -m "chore: update TdF data [skip ci]"
+            git push
+          fi

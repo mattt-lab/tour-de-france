@@ -1,0 +1,97 @@
+{
+  "season": 2026,
+  "race": "Tour de France",
+  "totalDistanceKm": 3333,
+  "totalElevationM": 54450,
+  "stages": [
+    { "n": 1, "date": "2026-07-04", "start": "Barcelona", "finish": "Barcelona", "distanceKm": 19.7, "type": "ttt", "typeLabel": "Team Time Trial", "climbs": [], "storyline": "The Tour opens with a team time trial for the first time since 1971 — a pure test of squad cohesion before the road stages begin." },
+    { "n": 2, "date": "2026-07-05", "start": "Tarragona", "finish": "Barcelona", "distanceKm": 178, "type": "hilly", "typeLabel": "Hilly", "climbs": [
+        { "name": "Côte de Begues", "category": null },
+        { "name": "Côte du Château de Montjuïc", "category": 3, "lengthKm": 1.6, "gradient": 9.3 },
+        { "name": "Climb to Olympic Stadium", "category": 4, "lengthKm": 0.6, "gradient": 7.0 }
+      ], "storyline": "Two laps of a punchy Montjuïc finishing circuit — short, steep ramps that could spark the first real blows between GC contenders." },
+    { "n": 3, "date": "2026-07-06", "start": "Granollers", "finish": "Les Angles", "distanceKm": 196, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Sant Feliu de Codines", "category": null },
+        { "name": "Collada de Toses", "category": 1, "lengthKm": 9.3, "gradient": 6.5 },
+        { "name": "Col du Calvaire", "category": 2, "lengthKm": 14.9, "gradient": 4.1 },
+        { "name": "Les Angles", "category": 3, "lengthKm": 1.7, "gradient": 6.5 }
+      ], "storyline": "Nearly 4,000m of climbing and a summit finish with a sting in the tail — the first real test for the early GC picture." },
+    { "n": 4, "date": "2026-07-07", "start": "Carcassonne", "finish": "Foix", "distanceKm": 182, "type": "hilly", "typeLabel": "Hilly", "climbs": [
+        { "name": "Col de Villerouge", "category": 3, "lengthKm": 8.6, "gradient": 3.0 },
+        { "name": "Col de Bedos", "category": 4, "lengthKm": 3.4, "gradient": 4.3 },
+        { "name": "Col du Paradis", "category": 3, "lengthKm": 6.4, "gradient": 4.1 },
+        { "name": "Col de Coudins", "category": 2, "lengthKm": 10.5, "gradient": 5.5 },
+        { "name": "Col de Montségur", "category": 2, "lengthKm": 6.9, "gradient": 6.6 }
+      ], "storyline": "Rolling Cathar-country terrain — undulating enough to keep GC teams honest, but a real chance for the breakaway to go the distance." },
+    { "n": 5, "date": "2026-07-08", "start": "Lannemezan", "finish": "Pau", "distanceKm": 158, "type": "flat", "typeLabel": "Flat", "climbs": [], "storyline": "A rare flat day between the Pyrenean skirmishes — the sprinters' teams take back control before the mountains bite for real." },
+    { "n": 6, "date": "2026-07-09", "start": "Pau", "finish": "Gavarnie-Gèdre", "distanceKm": 186, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Col d'Aspin", "category": 1, "lengthKm": 12, "gradient": 6.5 },
+        { "name": "Col du Tourmalet (via Sainte-Marie-de-Campan)", "category": "HC", "lengthKm": 17, "gradient": 7.3 },
+        { "name": "Gavarnie-Gèdre", "category": 1, "lengthKm": 18.7, "gradient": 4.0 }
+      ], "storyline": "The Tour's first true mountain stage — the mighty Tourmalet softens legs before a brand-new summit finish decides the day." },
+    { "n": 7, "date": "2026-07-10", "start": "Hagetmau", "finish": "Bordeaux", "distanceKm": 175, "type": "flat", "typeLabel": "Flat", "climbs": [], "storyline": "A likely bunch sprint into Bordeaux — the fast men who survived the Pyrenees get their reward." },
+    { "n": 8, "date": "2026-07-11", "start": "Périgueux", "finish": "Bergerac", "distanceKm": 182, "type": "flat", "typeLabel": "Flat", "climbs": [], "storyline": "Another flat transition through the Dordogne — expect the sprint trains to line up early." },
+    { "n": 9, "date": "2026-07-12", "start": "Malemort", "finish": "Ussel", "distanceKm": 185, "type": "hilly", "typeLabel": "Hilly", "climbs": [
+        { "name": "Côte de Miel", "category": 3, "lengthKm": 6.6, "gradient": 3.9 },
+        { "name": "Suc au May", "category": 2, "lengthKm": 3.8, "gradient": 7.7 },
+        { "name": "Côte de la Croix de Pey", "category": null },
+        { "name": "Mont Bessou", "category": null },
+        { "name": "Côte des Gardes", "category": 4, "lengthKm": 2.2, "gradient": 4.8 }
+      ], "storyline": "Rolling Corrèze terrain with 3,400m of climbing — a classic breakaway stage before the rest day." },
+    { "n": 0, "date": "2026-07-13", "start": "Cantal", "finish": null, "distanceKm": null, "type": "rest", "typeLabel": "Rest Day", "climbs": [], "storyline": "First rest day of the Tour — teams regroup in Cantal before the road tips upward again into the Massif Central." },
+    { "n": 10, "date": "2026-07-14", "start": "Aurillac", "finish": "Le Lioran", "distanceKm": 167, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Col de la Griffoul", "category": 2, "lengthKm": 5.9, "gradient": 6.7 },
+        { "name": "Col de Prat de Bouc", "category": 3, "lengthKm": 3.2, "gradient": 5.8 },
+        { "name": "Côte de Murat", "category": 4, "lengthKm": 6.6, "gradient": 4.4 },
+        { "name": "Puy Mary (Pas de Peyrol)", "category": 1, "lengthKm": 7.8, "gradient": 6.0 },
+        { "name": "Col de Pertus", "category": 2, "lengthKm": 4.4, "gradient": 8.5 },
+        { "name": "Col de Font de Cère", "category": null },
+        { "name": "Le Lioran", "category": null }
+      ], "storyline": "The Massif Central stage that turned the 2024 Tour on its head, when Vingegaard caught and beat Pogačar in the finale — 3,900m of climbing sets up another explosive finish." },
+    { "n": 11, "date": "2026-07-15", "start": "Vichy", "finish": "Nevers", "distanceKm": 161, "type": "flat", "typeLabel": "Flat", "climbs": [], "storyline": "A breather through the Allier — sprinters' day, GC teams happy to sit in." },
+    { "n": 12, "date": "2026-07-16", "start": "Nevers Magny-Cours", "finish": "Chalon-sur-Saône", "distanceKm": 181, "type": "flat", "typeLabel": "Flat", "climbs": [], "storyline": "Flat run toward Burgundy — another chance for the fast finishers before the Jura and Vosges arrive." },
+    { "n": 13, "date": "2026-07-17", "start": "Dole", "finish": "Belfort", "distanceKm": 205, "type": "hilly", "typeLabel": "Hilly", "climbs": [
+        { "name": "Col des Croix", "category": 3, "lengthKm": 5.4, "gradient": 4.9 },
+        { "name": "Ballon d'Alsace", "category": 1, "lengthKm": 8.7, "gradient": 6.9 }
+      ], "storyline": "The Tour's only stage over 200km — a scramble for the early break before the historic first-ever-climbed Tour mountain, the Ballon d'Alsace." },
+    { "n": 14, "date": "2026-07-18", "start": "Mulhouse", "finish": "Le Markstein Fellering", "distanceKm": 155, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Grand Ballon", "category": 1, "lengthKm": 21.5, "gradient": null },
+        { "name": "Col du Page", "category": 3, "lengthKm": 9.8, "gradient": 4.7 },
+        { "name": "Ballon d'Alsace", "category": 1, "lengthKm": 8.7, "gradient": 6.9 },
+        { "name": "Col du Schirm", "category": null },
+        { "name": "Col du Hundsruck", "category": null },
+        { "name": "Geishouse", "category": 2, "lengthKm": 10.9, "gradient": 7.3 },
+        { "name": "Col du Haag", "category": 1, "lengthKm": 11.2, "gradient": 7.3 }
+      ], "storyline": "Seven Vosges ascents and 3,800m of climbing — a tough, relentless day that should still leave the GC in the balance before a summit finish." },
+    { "n": 15, "date": "2026-07-19", "start": "Champagnole", "finish": "Plateau de Solaison", "distanceKm": 184, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Col de la Savine", "category": null },
+        { "name": "Côte de Doppe", "category": null },
+        { "name": "Col de la Croisette", "category": 1, "lengthKm": 7.6, "gradient": 8.8 },
+        { "name": "Plateau de Solaison", "category": "HC", "lengthKm": 11.6, "gradient": 8.9 }
+      ], "storyline": "A Jura-to-pre-Alps stage with 4,700m of climbing, capped by a brutal new summit finish steep enough to burn off all but the strongest riders." },
+    { "n": 0, "date": "2026-07-20", "start": "Haute-Savoie", "finish": null, "distanceKm": null, "type": "rest", "typeLabel": "Rest Day", "climbs": [], "storyline": "Second and final rest day, in Haute-Savoie — the last chance to recover before the Alps decide the Tour." },
+    { "n": 16, "date": "2026-07-21", "start": "Évian-les-Bains", "finish": "Thonon-les-Bains", "distanceKm": 26, "type": "itt", "typeLabel": "Individual Time Trial", "climbs": [], "storyline": "A short, sharp solo effort on Lake Geneva's shore — the last pure time-trial chance to shuffle the GC before the high mountains." },
+    { "n": 17, "date": "2026-07-22", "start": "Chambéry", "finish": "Voiron", "distanceKm": 175, "type": "flat", "typeLabel": "Flat", "climbs": [], "storyline": "A calm before the Alpine storm — transition stage most likely to end in a breakaway or a reduced sprint." },
+    { "n": 18, "date": "2026-07-23", "start": "Voiron", "finish": "Orcières-Merlette", "distanceKm": 185, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Engins", "category": 2, "lengthKm": 11.4, "gradient": 5.4 },
+        { "name": "Monteynard", "category": 2, "lengthKm": 9.7, "gradient": 5.0 },
+        { "name": "Orcières-Merlette", "category": 1, "lengthKm": 7.1, "gradient": 6.7 }
+      ], "storyline": "A gentler run-in to the final climb than in 1971, but still asking whether anyone can do to Pogačar what Ocaña once did to Merckx here." },
+    { "n": 19, "date": "2026-07-24", "start": "Gap", "finish": "Alpe d'Huez", "distanceKm": 128, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Col Bayard", "category": 3, "lengthKm": 5.5, "gradient": 6.8 },
+        { "name": "Col du Noyer", "category": 1, "lengthKm": 7.3, "gradient": 8.2 },
+        { "name": "Col d'Ornon", "category": 2, "lengthKm": 5.6, "gradient": 6.2 },
+        { "name": "Alpe d'Huez", "category": "HC", "lengthKm": 13.9, "gradient": 8.0 }
+      ], "storyline": "Short distance, ferocious early climbs, and the famous 21 hairpins of Alpe d'Huez to finish — a first look at the mountain's return to the Tour after decades away." },
+    { "n": 20, "date": "2026-07-25", "start": "Le Bourg-d'Oisans", "finish": "Alpe d'Huez", "distanceKm": 171, "type": "mountain", "typeLabel": "Mountains", "climbs": [
+        { "name": "Col de la Croix de Fer", "category": "HC", "lengthKm": 24, "gradient": 5.2 },
+        { "name": "Col du Télégraphe", "category": 1, "lengthKm": 12, "gradient": 7.1 },
+        { "name": "Col du Galibier", "category": "HC", "lengthKm": 17, "gradient": 6.8 },
+        { "name": "Col de Sarenne", "category": 1, "lengthKm": 12.9, "gradient": 7.3 },
+        { "name": "Alpe d'Huez", "category": "HC", "lengthKm": 3.8, "gradient": 6.1 }
+      ], "storyline": "The crowning stage of the 2026 Tour — four mountain passes and 5,600m of climbing for the first double ascent of Alpe d'Huez since 1979. This is very likely where the Tour is won or lost." },
+    { "n": 21, "date": "2026-07-26", "start": "Thoiry", "finish": "Paris (Champs-Élysées)", "distanceKm": 130, "type": "flat", "typeLabel": "Flat", "climbs": [
+        { "name": "Montmartre (x3)", "category": 4, "lengthKm": null, "gradient": null }
+      ], "storyline": "The traditional Champs-Élysées procession and sprint, but with three punchy laps of Montmartre added to the finishing circuit — a final twist before the champagne." }
+  ]
+}

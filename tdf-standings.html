@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Standings — Tour de France 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚴</text></svg>">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TdF 2026">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tour de France 2026">
+<meta property="og:title" content="Standings — Tour de France 2026">
+<meta property="og:description" content="GC, Points, Mountains, Youth, and Team classifications for the 2026 Tour de France.">
+<meta property="og:image" content="https://mattt-lab.github.io/tour-de-france/apple-touch-icon.png">
+<meta property="og:url" content="https://mattt-lab.github.io/tour-de-france/tdf-standings.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mattt-lab.github.io/tour-de-france/apple-touch-icon.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0b0b;color:#f0f0f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+header{border-bottom:1px solid #1e1e1e;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#0b0b0b;z-index:100}
+.logo{font-size:14px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.logo em{color:#f5c518;font-style:normal}
+.logo-ver{font-size:10px;font-weight:400;color:#333}
+nav a{font-size:11px;font-weight:600;color:#444;margin-left:22px;text-transform:uppercase;letter-spacing:.08em;transition:color .15s}
+nav a:hover{color:#f0f0f0}
+nav a.active{color:#f5c518}
+
+main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#444;margin-bottom:10px}
+
+.tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.tab-btn{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#666;background:#141414;border:1px solid #222;border-radius:20px;padding:7px 14px;cursor:pointer;transition:all .15s}
+.tab-btn:hover{color:#f0f0f0}
+.tab-btn.active{color:#0b0b0b;background:#f5c518;border-color:#f5c518}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-yellow{background:#f5c518}
+.dot-green{background:#22c55e}
+.dot-red{background:#ef4444}
+.dot-white{background:#e5e5e5}
+.dot-neutral{background:#666}
+
+.table-card{background:#111;border:1px solid #1e1e1e;border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid #181818;font-size:13px}
+.row:last-child{border-bottom:none}
+.row:nth-child(-n+3){background:rgba(245,197,24,.03)}
+.rank{width:24px;color:#666;font-weight:700;flex-shrink:0;text-align:center}
+.rank.top1{color:#f5c518}
+.rider-block{flex:1;min-width:0}
+.rider{font-weight:600;font-size:13px}
+.team{font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat{font-variant-numeric:tabular-nums;font-size:12px;color:#aaa;text-align:right;flex-shrink:0}
+.gap-lead{color:#f5c518;font-weight:700}
+
+.loading{color:#444;font-size:13px;padding:40px 0;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><em>Tour</em> de France <span class="logo-ver">2026</span></div>
+  <nav>
+    <a href="tdf-dashboard.html">Today</a>
+    <a href="tdf-route.html">Route</a>
+    <a href="tdf-standings.html" class="active">Standings</a>
+  </nav>
+</header>
+<main id="app">
+  <div class="loading">Loading standings…</div>
+</main>
+
+<script>
+const CLASSIFICATIONS = [
+  { key: 'gc', label: 'General', dot: 'dot-yellow', kind: 'time' },
+  { key: 'points', label: 'Points', dot: 'dot-green', kind: 'points' },
+  { key: 'mountains', label: 'Mountains', dot: 'dot-red', kind: 'points' },
+  { key: 'youth', label: 'Youth', dot: 'dot-white', kind: 'time' },
+  { key: 'teams', label: 'Teams', dot: 'dot-neutral', kind: 'team-time' },
+];
+
+function renderTable(rows, kind){
+  if(!rows || !rows.length) return `<div class="table-card"><div class="row">No data yet.</div></div>`;
+  return `<div class="table-card">` + rows.slice(0,25).map((r,i) => {
+    const rank = r.rank;
+    let statVal;
+    if(kind === 'points') statVal = r.points || '';
+    else if(kind === 'team-time') statVal = r.gap && r.gap !== '-' ? r.gap : (r.times || '');
+    else statVal = r.gap && r.gap !== '-' ? r.gap : 'Leader';
+    const isLead = statVal === 'Leader';
+    const nameLine = kind === 'team-time'
+      ? `<div class="rider">${r.team}</div>`
+      : `<div class="rider">${r.rider}</div><div class="team">${r.team}</div>`;
+    return `<div class="row">
+      <div class="rank ${i===0?'top1':''}">${rank}</div>
+      <div class="rider-block">${nameLine}</div>
+      <div class="stat ${isLead?'gap-lead':''}">${statVal}</div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+async function main(){
+  const app = document.getElementById('app');
+  let standings;
+  try { standings = await (await fetch('data/standings.json')).json(); }
+  catch(e){ app.innerHTML = '<div class="loading">Could not load standings.</div>'; return; }
+
+  let html = `<div class="section-label">Classifications — after Stage ${standings.stage}</div>`;
+  html += `<div class="tabs">` + CLASSIFICATIONS.map((c,i) =>
+    `<button class="tab-btn ${i===0?'active':''}" data-k="${c.key}"><span class="dot ${c.dot}"></span>${c.label}</button>`
+  ).join('') + `</div>`;
+  html += `<div id="table-slot"></div>`;
+  app.innerHTML = html;
+
+  const slot = document.getElementById('table-slot');
+  function show(key){
+    const c = CLASSIFICATIONS.find(c => c.key === key);
+    slot.innerHTML = renderTable(standings[key], c.kind);
+  }
+  show('gc');
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      show(btn.dataset.k);
+    });
+  });
+}
+
+main();
+</script>
+</body>
+</html>

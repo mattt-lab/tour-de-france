@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Route — Tour de France 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚴</text></svg>">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#0b0b0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TdF 2026">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tour de France 2026">
+<meta property="og:title" content="Route — Tour de France 2026">
+<meta property="og:description" content="All 21 stages of the 2026 Tour de France — terrain, climbs, and storylines.">
+<meta property="og:image" content="https://mattt-lab.github.io/tour-de-france/apple-touch-icon.png">
+<meta property="og:url" content="https://mattt-lab.github.io/tour-de-france/tdf-route.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mattt-lab.github.io/tour-de-france/apple-touch-icon.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0b0b;color:#f0f0f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+header{border-bottom:1px solid #1e1e1e;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#0b0b0b;z-index:100}
+.logo{font-size:14px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.logo em{color:#f5c518;font-style:normal}
+.logo-ver{font-size:10px;font-weight:400;color:#333}
+nav a{font-size:11px;font-weight:600;color:#444;margin-left:22px;text-transform:uppercase;letter-spacing:.08em;transition:color .15s}
+nav a:hover{color:#f0f0f0}
+nav a.active{color:#f5c518}
+
+main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
+.summary{display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap}
+.summary div{font-size:12px;color:#666}
+.summary b{color:#f0f0f0;font-size:16px;display:block;font-weight:800}
+
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#666;background:#141414;border:1px solid #222;border-radius:20px;padding:6px 14px;cursor:pointer;transition:all .15s}
+.filter-btn:hover{color:#f0f0f0}
+.filter-btn.active{color:#0b0b0b;background:#f5c518;border-color:#f5c518}
+
+.terrain{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:20px;padding:3px 10px}
+.terrain-flat{color:#38bdf8;border:1px solid rgba(56,189,248,.35)}
+.terrain-hilly{color:#f59e0b;border:1px solid rgba(245,158,11,.35)}
+.terrain-mountain{color:#ef4444;border:1px solid rgba(239,68,68,.35)}
+.terrain-itt,.terrain-ttt{color:#a78bfa;border:1px solid rgba(167,139,250,.35)}
+.terrain-rest{color:#666;border:1px solid #333}
+
+.stage-card{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:18px 20px;margin-bottom:10px}
+.stage-card.is-rest{background:none;border:1px dashed #262626;padding:12px 20px;text-align:center}
+.stage-card.is-past{opacity:.55}
+.stage-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.stage-n{font-size:11px;color:#666;font-weight:700}
+.stage-route{font-size:16px;font-weight:800;letter-spacing:-.01em;margin:6px 0 3px}
+.stage-meta{font-size:12px;color:#666}
+.storyline{font-size:13px;line-height:1.55;color:#aaa;margin-top:10px}
+
+.climb-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.climb-chip{font-size:11px;color:#aaa;background:#1a1a1a;border:1px solid #262626;border-radius:8px;padding:4px 9px;display:flex;align-items:center;gap:5px}
+.cat{font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px}
+.cat-HC{background:#7f1d1d;color:#fca5a5}
+.cat-1{background:#78350f;color:#fcd34d}
+.cat-2{background:#1e3a8a;color:#93c5fd}
+.cat-3{background:#14532d;color:#86efac}
+.cat-4{background:#262626;color:#aaa}
+
+.loading{color:#444;font-size:13px;padding:40px 0;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><em>Tour</em> de France <span class="logo-ver">2026</span></div>
+  <nav>
+    <a href="tdf-dashboard.html">Today</a>
+    <a href="tdf-route.html" class="active">Route</a>
+    <a href="tdf-standings.html">Standings</a>
+  </nav>
+</header>
+<main id="app">
+  <div class="loading">Loading route…</div>
+</main>
+
+<script>
+const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'ITT', ttt:'TTT', rest:'Rest' };
+function ymd(d){ return d.toISOString().slice(0,10); }
+
+function climbChips(climbs){
+  if(!climbs || !climbs.length) return '';
+  return `<div class="climb-list">${climbs.map(c => {
+    const cat = c.category ? `<span class="cat cat-${c.category}">${c.category === 'HC' ? 'HC' : 'Cat '+c.category}</span>` : '';
+    const detail = c.lengthKm ? ` · ${c.lengthKm}km${c.gradient ? ' @ '+c.gradient+'%':''}` : '';
+    return `<span class="climb-chip">${cat}${c.name}${detail}</span>`;
+  }).join('')}</div>`;
+}
+
+function stageCard(s, todayStr){
+  if(s.type === 'rest'){
+    return `<div class="stage-card is-rest"><div class="stage-n">Rest Day · ${s.date}</div><div class="stage-meta">${s.start}</div></div>`;
+  }
+  const isPast = s.date < todayStr;
+  return `<div class="stage-card ${isPast ? 'is-past' : ''}" data-type="${s.type}">
+    <div class="stage-top">
+      <div class="stage-n">Stage ${s.n} · ${s.date}</div>
+      <span class="terrain terrain-${s.type}">${TERRAIN_LABEL[s.type]}</span>
+    </div>
+    <div class="stage-route">${s.start} → ${s.finish}</div>
+    <div class="stage-meta">${s.distanceKm} km</div>
+    ${climbChips(s.climbs)}
+    <div class="storyline">${s.storyline}</div>
+  </div>`;
+}
+
+async function main(){
+  const app = document.getElementById('app');
+  let route;
+  try { route = await (await fetch('data/route.json')).json(); }
+  catch(e){ app.innerHTML = '<div class="loading">Could not load route data.</div>'; return; }
+
+  const todayStr = ymd(new Date());
+  const stages = route.stages;
+  const mountainCount = stages.filter(s=>s.type==='mountain').length;
+
+  let html = `<div class="summary">
+    <div><b>${route.totalDistanceKm.toLocaleString()} km</b>Total distance</div>
+    <div><b>${route.totalElevationM.toLocaleString()} m</b>Total elevation</div>
+    <div><b>${mountainCount}</b>Mountain stages</div>
+    <div><b>21</b>Stages</div>
+  </div>`;
+
+  html += `<div class="filters">
+    <button class="filter-btn active" data-f="all">All</button>
+    <button class="filter-btn" data-f="flat">Flat</button>
+    <button class="filter-btn" data-f="hilly">Hilly</button>
+    <button class="filter-btn" data-f="mountain">Mountains</button>
+    <button class="filter-btn" data-f="itt">Time Trials</button>
+  </div>`;
+
+  html += `<div id="stage-list">` + stages.map(s => stageCard(s, todayStr)).join('') + `</div>`;
+  app.innerHTML = html;
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.f;
+      document.querySelectorAll('#stage-list > div').forEach(card => {
+        const type = card.dataset.type;
+        const show = f === 'all' || type === f || (f === 'itt' && (type === 'itt' || type === 'ttt')) || !type;
+        card.style.display = show ? '' : 'none';
+      });
+    });
+  });
+}
+
+main();
+</script>
+</body>
+</html>
