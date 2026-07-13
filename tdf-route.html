@@ -92,7 +92,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading route…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.1</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.2</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'ITT', ttt:'TTT', rest:'Rest' };
@@ -116,10 +116,12 @@ function buildRouteMap(stages, geo, basemap, todayStr, highlightN){
   if(!raceStages.length) return '';
 
   // Precompute one line segment per stage's actual start->finish leg, plus
-  // a separate (dashed) transfer segment when a stage's finish town isn't
-  // the next stage's start town. The highlighted stage is redrawn in gold
-  // using these exact same coordinates, so it can never drift out of
-  // alignment with the base route beneath it.
+  // a connector segment when a stage's finish town isn't the next stage's
+  // start town (true for 18 of 21 stages — normal Tour transfers). All
+  // segments render with the same uniform style so the route still reads
+  // as one continuous line, same as before; the highlighted stage is then
+  // redrawn in gold using these exact same coordinates, so it can never
+  // drift out of alignment with the base route beneath it.
   const legs = [];
   raceStages.forEach((s, i) => {
     const p1 = projTown(s.start), p2 = projTown(s.finish);
@@ -141,11 +143,7 @@ function buildRouteMap(stages, geo, basemap, todayStr, highlightN){
   let routeLines = '';
   legs.forEach(leg => {
     const [x1,y1] = leg.p1, [x2,y2] = leg.p2;
-    if(leg.type === 'race'){
-      routeLines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${leg.isPast ? '#3a3a3a' : '#5a5a45'}" stroke-width="1.5" opacity="0.85"/>`;
-    } else {
-      routeLines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
-    }
+    routeLines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${leg.isPast ? '#4a4a3a' : '#6b6b52'}" stroke-width="1.5" opacity="0.85"/>`;
   });
 
   // Highlight overlay — same leg object as above, just restyled, so it's
