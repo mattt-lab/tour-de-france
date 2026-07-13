@@ -92,7 +92,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading route…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.4</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.5</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'ITT', ttt:'TTT', rest:'Rest' };
@@ -114,9 +114,18 @@ function buildRouteMap(pathsData, highlightN){
   const vbH = pathsData ? pathsData.imageHeight : 1957;
   let overlay = '';
   if(box){
-    overlay = `<rect x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" rx="14" fill="none" stroke="#ef4444" stroke-width="5" opacity="0.9">
-        <animate attributeName="opacity" values="0.9;0.35;0.9" dur="1.8s" repeatCount="indefinite"/>
-      </rect>`;
+    // Outer rect pulses size+opacity for a stronger "breathing" effect;
+    // inner rect stays solid so the box reads clearly even mid-pulse.
+    overlay = `<g class="stage-highlight-box" data-stage="${highlightN}" style="cursor:pointer" pointer-events="all">
+        <rect x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" rx="16" fill="rgba(255,0,0,0.001)" stroke="#ff1f3d" stroke-width="8" opacity="1">
+          <animate attributeName="x" values="${box.x};${box.x-8};${box.x}" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="${box.y};${box.y-8};${box.y}" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="width" values="${box.w};${box.w+16};${box.w}" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="height" values="${box.h};${box.h+16};${box.h}" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;0.55;1" dur="1.4s" repeatCount="indefinite"/>
+        </rect>
+        <title>Go to Stage ${highlightN} details</title>
+      </g>`;
   }
   return `<div style="position:relative">
     <img src="assets/route-map.jpg" alt="Tour de France 2026 route map" style="width:100%;display:block;border-radius:8px"/>
@@ -173,7 +182,7 @@ async function main(){
   if(pathsData){
     html += `<div class="map-card">${buildRouteMap(pathsData, highlightN)}
       <div class="map-legend">
-        <span><i style="background:#ef4444;border-radius:3px"></i>Current / next stage</span>
+        <span><i style="background:#ff1f3d;border-radius:3px"></i>Current / next stage (click to jump to details)</span>
       </div>
     </div>`;
   }
@@ -212,6 +221,17 @@ async function main(){
   if(highlightN){
     const target = document.getElementById(`stage-${highlightN}`);
     if(target) target.scrollIntoView({ behavior: 'instant', block: 'center' });
+  }
+
+  const highlightBox = document.querySelector('.stage-highlight-box');
+  if(highlightBox){
+    highlightBox.addEventListener('click', () => {
+      const n = highlightBox.dataset.stage;
+      const target = document.getElementById(`stage-${n}`);
+      if(target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Falls back cleanly if the browser doesn't animate 'smooth' from a
+      // programmatic click; either way the user lands on the right card.
+    });
   }
 }
 

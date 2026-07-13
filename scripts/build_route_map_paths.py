@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 
 IMG_W, IMG_H = 1600, 1957
-MIN_PAD = 35  # minimum padding in px so short/tight stages still get a visible box
+MIN_PAD = 50  # minimum padding in px so short/tight stages still get a visible box
 
 # Waypoints traced directly from the map image (pixel space, 1600x1957),
 # one polyline per stage's actual drawn route curve — used here only to
@@ -54,8 +54,8 @@ def bbox_for(points):
     ys = [p[1] for p in points]
     x0, x1 = min(xs), max(xs)
     y0, y1 = min(ys), max(ys)
-    padX = max(MIN_PAD, (x1 - x0) * 0.35)
-    padY = max(MIN_PAD, (y1 - y0) * 0.35)
+    padX = max(MIN_PAD, (x1 - x0) * 0.45)
+    padY = max(MIN_PAD, (y1 - y0) * 0.45)
     return {
         "x": round(x0 - padX, 1),
         "y": round(y0 - padY, 1),
