@@ -110,15 +110,27 @@ function buildRouteMap(stages, geo, basemap, todayStr, highlightN){
     (lon-lonMin)/(lonMax-lonMin) * MAP_W,
     (latMax-lat)/(latMax-latMin) * MAP_H
   ];
+  const projTown = (town) => { const c = geo[town]; return c ? proj(c.lat, c.lon) : null; };
 
-  const pts = stages.filter(s => s.n > 0).map(s => {
-    const coord = geo[s.finish] || geo[s.start];
-    return coord ? { ...s, lat: coord.lat, lon: coord.lon } : null;
-  }).filter(Boolean);
-  if(!pts.length) return '';
+  const raceStages = stages.filter(s => s.n > 0);
+  if(!raceStages.length) return '';
 
-  const coords = pts.map(p => proj(p.lat, p.lon));
-  const linePoints = coords.map(c => c.join(',')).join(' ');
+  // Precompute one line segment per stage's actual start->finish leg, plus
+  // a separate (dashed) transfer segment when a stage's finish town isn't
+  // the next stage's start town. The highlighted stage is redrawn in gold
+  // using these exact same coordinates, so it can never drift out of
+  // alignment with the base route beneath it.
+  const legs = [];
+  raceStages.forEach((s, i) => {
+    const p1 = projTown(s.start), p2 = projTown(s.finish);
+    if(p1 && p2) legs.push({ n: s.n, type: 'race', p1, p2, isPast: s.date < todayStr });
+
+    const next = raceStages[i+1];
+    if(next && next.start !== s.finish){
+      const p3 = projTown(next.start);
+      if(p2 && p3) legs.push({ n: s.n, type: 'transfer', p1: p2, p2: p3, isPast: s.date < todayStr });
+    }
+  });
 
   let land = '';
   if(basemap){
@@ -126,39 +138,47 @@ function buildRouteMap(stages, geo, basemap, todayStr, highlightN){
       <path d="${basemap.france || ''}" fill="#15301f" stroke="#2a4a37" stroke-width="1"/>`;
   }
 
-  // The leg for the highlighted stage gets its own start->finish line drawn
-  // from real coordinates, not just the inferred prev-dot-to-dot segment.
-  let legLine = '';
-  const highlightStage = stages.find(s => s.n === highlightN);
-  if(highlightStage){
-    const startCoord = geo[highlightStage.start];
-    const finishCoord = geo[highlightStage.finish];
-    if(startCoord && finishCoord){
-      const [sx,sy] = proj(startCoord.lat, startCoord.lon);
-      const [fx,fy] = proj(finishCoord.lat, finishCoord.lon);
-      legLine = `<line x1="${sx}" y1="${sy}" x2="${fx}" y2="${fy}" stroke="#f5c518" stroke-width="3" stroke-linecap="round" opacity="0.85"/>`;
+  let routeLines = '';
+  legs.forEach(leg => {
+    const [x1,y1] = leg.p1, [x2,y2] = leg.p2;
+    if(leg.type === 'race'){
+      routeLines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${leg.isPast ? '#3a3a3a' : '#5a5a45'}" stroke-width="1.5" opacity="0.85"/>`;
+    } else {
+      routeLines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
     }
+  });
+
+  // Highlight overlay — same leg object as above, just restyled, so it's
+  // pixel-identical to the base line rather than an independently computed
+  // (and potentially misaligned) segment.
+  let legLine = '';
+  const hLeg = legs.find(l => l.n === highlightN && l.type === 'race');
+  if(hLeg){
+    const [x1,y1] = hLeg.p1, [x2,y2] = hLeg.p2;
+    legLine = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#f5c518" stroke-width="3" stroke-linecap="round" opacity="0.9"/>`;
   }
 
   let dots = '';
-  pts.forEach((p, i) => {
-    const [x,y] = coords[i];
-    const isPast = p.date < todayStr;
-    const isCurrent = p.n === highlightN;
+  raceStages.forEach(s => {
+    const p = projTown(s.finish) || projTown(s.start);
+    if(!p) return;
+    const [x,y] = p;
+    const isPast = s.date < todayStr;
+    const isCurrent = s.n === highlightN;
     if(isCurrent){
       dots += `<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="#f5c518" stroke-width="1.5" opacity="0.5"><animate attributeName="r" values="7;13;7" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/></circle>`;
       dots += `<circle cx="${x}" cy="${y}" r="6.5" fill="#f5c518"/>`;
-      dots += `<text x="${x + (x > MAP_W-90 ? -11 : 11)}" y="${y+4}" font-size="11" font-weight="700" fill="#f5c518" text-anchor="${x > MAP_W-90 ? 'end' : 'start'}">S${p.n} ${p.finish}</text>`;
+      dots += `<text x="${x + (x > MAP_W-90 ? -11 : 11)}" y="${y+4}" font-size="11" font-weight="700" fill="#f5c518" text-anchor="${x > MAP_W-90 ? 'end' : 'start'}">S${s.n} ${s.finish}</text>`;
     } else {
-      const color = isPast ? '#4a4a4a' : (TERRAIN_DOT[p.type] || '#666');
-      dots += `<circle cx="${x}" cy="${y}" r="3.5" fill="${color}" opacity="${isPast ? 1 : 0.9}"><title>Stage ${p.n} · ${p.finish}</title></circle>`;
+      const color = isPast ? '#4a4a4a' : (TERRAIN_DOT[s.type] || '#666');
+      dots += `<circle cx="${x}" cy="${y}" r="3.5" fill="${color}" opacity="${isPast ? 1 : 0.9}"><title>Stage ${s.n} · ${s.finish}</title></circle>`;
     }
   });
 
   return `<svg viewBox="0 0 ${MAP_W} ${MAP_H}" width="100%" style="display:block;overflow:hidden;border-radius:8px">
     <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="#0d2438"/>
     ${land}
-    <polyline points="${linePoints}" fill="none" stroke="#4a4a3a" stroke-width="1.5" opacity="0.8"/>
+    ${routeLines}
     ${legLine}
     ${dots}
   </svg>`;

@@ -150,9 +150,12 @@ async function main(){
   try { standings = await (await fetch('data/standings.json')).json(); }
   catch(e){ app.innerHTML = '<div class="loading">Could not load standings.</div>'; return; }
 
+  const requestedTab = new URLSearchParams(location.search).get('tab');
+  const initialKey = CLASSIFICATIONS.some(c => c.key === requestedTab) ? requestedTab : 'gc';
+
   let html = `<div class="section-label">Classifications — after Stage ${standings.stage}</div>`;
-  html += `<div class="tabs">` + CLASSIFICATIONS.map((c,i) =>
-    `<button class="tab-btn ${i===0?'active':''}" data-k="${c.key}"><span class="dot ${c.dot}"></span>${c.label}</button>`
+  html += `<div class="tabs">` + CLASSIFICATIONS.map((c) =>
+    `<button class="tab-btn ${c.key===initialKey?'active':''}" data-k="${c.key}"><span class="dot ${c.dot}"></span>${c.label}</button>`
   ).join('') + `</div>`;
   html += `<div id="table-slot"></div>`;
   app.innerHTML = html;
@@ -162,7 +165,7 @@ async function main(){
     const c = CLASSIFICATIONS.find(c => c.key === key);
     slot.innerHTML = renderTable(standings[key], c.kind);
   }
-  show('gc');
+  show(initialKey);
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));

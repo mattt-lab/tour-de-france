@@ -73,7 +73,8 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 
 /* Jersey snapshot grid */
 .jersey-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:24px}
-.jersey-card{background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:14px 16px}
+.jersey-card{display:block;background:#111;border:1px solid #1e1e1e;border-radius:12px;padding:14px 16px;transition:border-color .15s}
+.jersey-card:hover{border-color:#333}
 .jersey-label{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .dot-yellow{background:#f5c518}
@@ -137,14 +138,15 @@ function buildStageProfile(stage, profiles){
   return `<div class="profile-img-wrap"><img src="${url}" alt="Elevation profile for Stage ${stage.n}"/></div>`;
 }
 
-function jerseyCard(label, dotClass, row, isTime){
-  if(!row) return `<div class="jersey-card"><div class="jersey-label"><span class="dot ${dotClass}"></span>${label}</div><div class="jersey-detail">—</div></div>`;
+function jerseyCard(label, dotClass, row, isTime, tabKey){
+  const href = `tdf-standings.html?tab=${tabKey}`;
+  if(!row) return `<a class="jersey-card" href="${href}"><div class="jersey-label"><span class="dot ${dotClass}"></span>${label}</div><div class="jersey-detail">—</div></a>`;
   const detail = isTime ? (row.gap && row.gap !== '-' ? row.gap : 'Leader') : (row.points || row.times || '');
-  return `<div class="jersey-card">
+  return `<a class="jersey-card" href="${href}">
     <div class="jersey-label"><span class="dot ${dotClass}"></span>${label}</div>
     <div class="jersey-rider">${row.rider}</div>
     <div class="jersey-detail">${row.team} · ${detail}</div>
-  </div>`;
+  </a>`;
 }
 
 async function tryFetch(url){
@@ -191,10 +193,10 @@ async function main(){
   // Jersey snapshot
   if(standings){
     html += `<div class="section-label">Current Jerseys — after Stage ${standings.stage}</div><div class="jersey-grid">`;
-    html += jerseyCard('General Classification', 'dot-yellow', standings.gc[0], true);
-    html += jerseyCard('Points', 'dot-green', standings.points[0], false);
-    html += jerseyCard('Mountains', 'dot-red', standings.mountains[0], false);
-    html += jerseyCard('Youth', 'dot-white', standings.youth[0], true);
+    html += jerseyCard('General Classification', 'dot-yellow', standings.gc[0], true, 'gc');
+    html += jerseyCard('Points', 'dot-green', standings.points[0], false, 'points');
+    html += jerseyCard('Mountains', 'dot-red', standings.mountains[0], false, 'mountains');
+    html += jerseyCard('Youth', 'dot-white', standings.youth[0], true, 'youth');
     html += `</div>`;
   }
 
