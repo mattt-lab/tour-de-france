@@ -98,6 +98,8 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .card-link .s{font-size:12px;color:#666;margin-top:2px}
 
 .loading{color:#444;font-size:13px;padding:40px 0;text-align:center}
+.profile-img-wrap{margin-top:14px;border-radius:10px;overflow:hidden;background:#0d0d0d}
+.profile-img-wrap img{display:block;width:100%;height:auto}
 </style>
 </head>
 <body>
@@ -129,47 +131,10 @@ function climbChips(climbs){
   }).join('')}</div>`;
 }
 
-const CAT_HEIGHT = { HC:0.95, '1':0.75, '2':0.58, '3':0.42, '4':0.28 };
-const CAT_COLOR  = { HC:'#ef4444', '1':'#f59e0b', '2':'#eab308', '3':'#84cc16', '4':'#22c55e' };
-
-function buildClimbProfile(stage, width, height){
-  const climbs = stage.climbs || [];
-  if(!climbs.length) return '';
-
-  const baseY = height - 30;
-  const topPad = 12;
-  const maxH = baseY - topPad;
-  const n = climbs.length;
-  const slotW = width / n;
-
-  let d = `M 0,${baseY}`;
-  let markers = '';
-  climbs.forEach((c, i) => {
-    const catKey = c.category ? String(c.category) : '3';
-    const h = (CAT_HEIGHT[catKey] || 0.35) * maxH;
-    const apexY = baseY - h;
-    const slotStart = i*slotW, slotEnd = (i+1)*slotW;
-    const apexX = (slotStart + slotEnd) / 2;
-    const riseX = slotStart + slotW*0.15;
-    const descendX = slotEnd - slotW*0.15;
-    d += ` Q ${slotStart+slotW*0.28},${baseY} ${riseX},${baseY - h*0.5}`;
-    d += ` Q ${apexX - slotW*0.1},${apexY} ${apexX},${apexY}`;
-    d += ` Q ${apexX + slotW*0.1},${apexY} ${descendX},${baseY - h*0.5}`;
-    d += ` Q ${slotEnd - slotW*0.28},${baseY} ${slotEnd},${baseY}`;
-
-    const color = CAT_COLOR[catKey] || '#888';
-    const label = c.category ? (c.category === 'HC' ? 'HC' : `Cat ${c.category}`) : '';
-    const shortName = c.name.length > 18 ? c.name.slice(0,17)+'…' : c.name;
-    markers += `<circle cx="${apexX}" cy="${apexY}" r="2.5" fill="${color}"/>`;
-    if(label) markers += `<text x="${apexX}" y="${Math.max(apexY-8,10)}" font-size="9" font-weight="700" fill="${color}" text-anchor="middle">${label}</text>`;
-    markers += `<text x="${apexX}" y="${height-8}" font-size="8" fill="#666" text-anchor="middle">${shortName}</text>`;
-  });
-
-  return `<svg viewBox="0 0 ${width} ${height}" width="100%" style="display:block">
-    <path d="${d}" fill="rgba(239,68,68,0.07)" stroke="#3a3a3a" stroke-width="1.5"/>
-    <line x1="0" y1="${baseY}" x2="${width}" y2="${baseY}" stroke="#222" stroke-width="1"/>
-    ${markers}
-  </svg>`;
+function buildStageProfile(stage, profiles){
+  const url = profiles && profiles[String(stage.n)];
+  if(!url) return '';
+  return `<div class="profile-img-wrap"><img src="${url}" alt="Elevation profile for Stage ${stage.n}"/></div>`;
 }
 
 function jerseyCard(label, dotClass, row, isTime){
@@ -189,6 +154,7 @@ async function tryFetch(url){
 async function main(){
   const route = await tryFetch('data/route.json');
   const standings = await tryFetch('data/standings.json');
+  const profiles = await tryFetch('data/profiles.json');
   const app = document.getElementById('app');
   if(!route){ app.innerHTML = '<div class="loading">Could not load race data.</div>'; return; }
 
@@ -240,7 +206,7 @@ async function main(){
       ${terrainBadge(spotlight.type, TERRAIN_LABEL[spotlight.type])}
       <div class="stage-route">Stage ${spotlight.n} · ${spotlight.start} → ${spotlight.finish}</div>
       <div class="stage-meta">${spotlight.distanceKm} km · ${spotlight.date}</div>
-      ${buildClimbProfile(spotlight, 400, 130)}
+      ${buildStageProfile(spotlight, profiles)}
       ${climbChips(spotlight.climbs)}
       <div class="storyline">${spotlight.storyline}</div>
     </div>`;
