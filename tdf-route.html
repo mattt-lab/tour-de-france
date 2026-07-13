@@ -122,8 +122,22 @@ function buildRouteMap(stages, geo, basemap, todayStr, highlightN){
 
   let land = '';
   if(basemap){
-    land = `<path d="${basemap.spain || ''}" fill="#151b12" stroke="#26311f" stroke-width="1"/>
-      <path d="${basemap.france || ''}" fill="#171d13" stroke="#2a3520" stroke-width="1"/>`;
+    land = `<path d="${basemap.spain || ''}" fill="#132a1c" stroke="#264535" stroke-width="1"/>
+      <path d="${basemap.france || ''}" fill="#15301f" stroke="#2a4a37" stroke-width="1"/>`;
+  }
+
+  // The leg for the highlighted stage gets its own start->finish line drawn
+  // from real coordinates, not just the inferred prev-dot-to-dot segment.
+  let legLine = '';
+  const highlightStage = stages.find(s => s.n === highlightN);
+  if(highlightStage){
+    const startCoord = geo[highlightStage.start];
+    const finishCoord = geo[highlightStage.finish];
+    if(startCoord && finishCoord){
+      const [sx,sy] = proj(startCoord.lat, startCoord.lon);
+      const [fx,fy] = proj(finishCoord.lat, finishCoord.lon);
+      legLine = `<line x1="${sx}" y1="${sy}" x2="${fx}" y2="${fy}" stroke="#f5c518" stroke-width="3" stroke-linecap="round" opacity="0.85"/>`;
+    }
   }
 
   let dots = '';
@@ -142,8 +156,10 @@ function buildRouteMap(stages, geo, basemap, todayStr, highlightN){
   });
 
   return `<svg viewBox="0 0 ${MAP_W} ${MAP_H}" width="100%" style="display:block;overflow:hidden;border-radius:8px">
+    <rect x="0" y="0" width="${MAP_W}" height="${MAP_H}" fill="#0d2438"/>
     ${land}
     <polyline points="${linePoints}" fill="none" stroke="#4a4a3a" stroke-width="1.5" opacity="0.8"/>
+    ${legLine}
     ${dots}
   </svg>`;
 }
@@ -162,7 +178,7 @@ function stageCard(s, todayStr){
     return `<div class="stage-card is-rest"><div class="stage-n">Rest Day · ${s.date}</div><div class="stage-meta">${s.start}</div></div>`;
   }
   const isPast = s.date < todayStr;
-  return `<div class="stage-card ${isPast ? 'is-past' : ''}" data-type="${s.type}">
+  return `<div class="stage-card ${isPast ? 'is-past' : ''}" data-type="${s.type}" id="stage-${s.n}">
     <div class="stage-top">
       <div class="stage-n">Stage ${s.n} · ${s.date}</div>
       <span class="terrain terrain-${s.type}">${TERRAIN_LABEL[s.type]}</span>
@@ -187,12 +203,13 @@ async function main(){
   const stages = route.stages;
   const mountainCount = stages.filter(s=>s.type==='mountain').length;
 
+  const todayStage = stages.find(s => s.date === todayStr && s.n > 0);
+  const upcoming = stages.filter(s => s.n > 0 && s.date >= todayStr).sort((a,b)=>a.n-b.n)[0];
+  const completed = stages.filter(s => s.n > 0 && s.date < todayStr).sort((a,b)=>b.n-a.n)[0];
+  const highlightN = todayStage ? todayStage.n : (upcoming ? upcoming.n : (completed ? completed.n : null));
+
   let html = '';
   if(geo){
-    const todayStage = stages.find(s => s.date === todayStr && s.n > 0);
-    const upcoming = stages.filter(s => s.n > 0 && s.date >= todayStr).sort((a,b)=>a.n-b.n)[0];
-    const completed = stages.filter(s => s.n > 0 && s.date < todayStr).sort((a,b)=>b.n-a.n)[0];
-    const highlightN = todayStage ? todayStage.n : (upcoming ? upcoming.n : (completed ? completed.n : null));
     const mapSvg = buildRouteMap(stages, geo, basemap, todayStr, highlightN);
     if(mapSvg){
       html += `<div class="map-card">${mapSvg}
@@ -238,6 +255,11 @@ async function main(){
       });
     });
   });
+
+  if(highlightN){
+    const target = document.getElementById(`stage-${highlightN}`);
+    if(target) target.scrollIntoView({ behavior: 'instant', block: 'center' });
+  }
 }
 
 main();
