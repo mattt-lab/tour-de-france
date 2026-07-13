@@ -31,6 +31,11 @@ header{border-bottom:1px solid #1e1e1e;padding:0 24px;height:52px;display:flex;a
 nav a{font-size:11px;font-weight:600;color:#444;margin-left:22px;text-transform:uppercase;letter-spacing:.08em;transition:color .15s}
 nav a:hover{color:#f0f0f0}
 nav a.active{color:#f5c518}
+@media(max-width:600px){
+  header{padding:0 16px}
+  .logo-wordmark{display:none}
+  nav a{margin-left:14px;font-size:10px}
+}
 
 main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .summary{display:flex;gap:24px;margin-bottom:20px;flex-wrap:wrap}
@@ -68,11 +73,15 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .cat-4{background:#262626;color:#aaa}
 
 .loading{color:#444;font-size:13px;padding:40px 0;text-align:center}
+.map-card{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:16px;margin-bottom:20px}
+.map-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid #1e1e1e}
+.map-legend span{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#666}
+.map-legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo"><em>Tour</em> de France <span class="logo-ver">2026</span></div>
+  <div class="logo">🚴 <span class="logo-wordmark">Tour de France </span><em>2026</em></div>
   <nav>
     <a href="tdf-dashboard.html">Today</a>
     <a href="tdf-route.html" class="active">Route</a>
@@ -85,7 +94,48 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'ITT', ttt:'TTT', rest:'Rest' };
+const TERRAIN_DOT = { flat:'#38bdf8', hilly:'#f59e0b', mountain:'#ef4444', itt:'#a78bfa', ttt:'#a78bfa' };
 function ymd(d){ return d.toISOString().slice(0,10); }
+
+function buildRouteMap(stages, geo, todayStr, highlightN, width, height){
+  const pts = stages.filter(s => s.n > 0).map(s => {
+    const coord = geo[s.finish] || geo[s.start];
+    return coord ? { ...s, lat: coord.lat, lon: coord.lon } : null;
+  }).filter(Boolean);
+  if(!pts.length) return '';
+
+  const pad = 0.4;
+  const lats = pts.map(p=>p.lat), lons = pts.map(p=>p.lon);
+  const latMin = Math.min(...lats)-pad, latMax = Math.max(...lats)+pad;
+  const lonMin = Math.min(...lons)-pad, lonMax = Math.max(...lons)+pad;
+  const proj = (lat,lon) => [
+    (lon-lonMin)/(lonMax-lonMin) * width,
+    (latMax-lat)/(latMax-latMin) * height
+  ];
+
+  const coords = pts.map(p => proj(p.lat, p.lon));
+  const linePoints = coords.map(c => c.join(',')).join(' ');
+
+  let dots = '';
+  pts.forEach((p, i) => {
+    const [x,y] = coords[i];
+    const isPast = p.date < todayStr;
+    const isCurrent = p.n === highlightN;
+    if(isCurrent){
+      dots += `<circle cx="${x}" cy="${y}" r="9" fill="none" stroke="#f5c518" stroke-width="1.5" opacity="0.5"><animate attributeName="r" values="7;13;7" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/></circle>`;
+      dots += `<circle cx="${x}" cy="${y}" r="6.5" fill="#f5c518"/>`;
+      dots += `<text x="${x + (x > width-90 ? -11 : 11)}" y="${y+4}" font-size="11" font-weight="700" fill="#f5c518" text-anchor="${x > width-90 ? 'end' : 'start'}">S${p.n} ${p.finish}</text>`;
+    } else {
+      const color = isPast ? '#3a3a3a' : (TERRAIN_DOT[p.type] || '#666');
+      dots += `<circle cx="${x}" cy="${y}" r="3.5" fill="${color}" opacity="${isPast ? 1 : 0.85}"><title>Stage ${p.n} · ${p.finish}</title></circle>`;
+    }
+  });
+
+  return `<svg viewBox="0 0 ${width} ${height}" width="100%" style="display:block">
+    <polyline points="${linePoints}" fill="none" stroke="#262626" stroke-width="1.5"/>
+    ${dots}
+  </svg>`;
+}
 
 function climbChips(climbs){
   if(!climbs || !climbs.length) return '';
@@ -118,12 +168,35 @@ async function main(){
   let route;
   try { route = await (await fetch('data/route.json')).json(); }
   catch(e){ app.innerHTML = '<div class="loading">Could not load route data.</div>'; return; }
+  let geo = null;
+  try { geo = await (await fetch('data/geo.json')).json(); } catch(e){ /* map is optional */ }
 
   const todayStr = ymd(new Date());
   const stages = route.stages;
   const mountainCount = stages.filter(s=>s.type==='mountain').length;
 
-  let html = `<div class="summary">
+  let html = '';
+  if(geo){
+    const todayStage = stages.find(s => s.date === todayStr && s.n > 0);
+    const upcoming = stages.filter(s => s.n > 0 && s.date >= todayStr).sort((a,b)=>a.n-b.n)[0];
+    const completed = stages.filter(s => s.n > 0 && s.date < todayStr).sort((a,b)=>b.n-a.n)[0];
+    const highlightN = todayStage ? todayStage.n : (upcoming ? upcoming.n : (completed ? completed.n : null));
+    const mapSvg = buildRouteMap(stages, geo, todayStr, highlightN, 460, 400);
+    if(mapSvg){
+      html += `<div class="map-card">${mapSvg}
+        <div class="map-legend">
+          <span><i style="background:#38bdf8"></i>Flat</span>
+          <span><i style="background:#f59e0b"></i>Hilly</span>
+          <span><i style="background:#ef4444"></i>Mountain</span>
+          <span><i style="background:#a78bfa"></i>Time Trial</span>
+          <span><i style="background:#f5c518"></i>Current / Next</span>
+          <span><i style="background:#3a3a3a"></i>Completed</span>
+        </div>
+      </div>`;
+    }
+  }
+
+  html += `<div class="summary">
     <div><b>${route.totalDistanceKm.toLocaleString()} km</b>Total distance</div>
     <div><b>${route.totalElevationM.toLocaleString()} m</b>Total elevation</div>
     <div><b>${mountainCount}</b>Mountain stages</div>

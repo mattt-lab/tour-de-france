@@ -31,6 +31,11 @@ header{border-bottom:1px solid #1e1e1e;padding:0 24px;height:52px;display:flex;a
 nav a{font-size:11px;font-weight:600;color:#444;margin-left:22px;text-transform:uppercase;letter-spacing:.08em;transition:color .15s}
 nav a:hover{color:#f0f0f0}
 nav a.active{color:#f5c518}
+@media(max-width:600px){
+  header{padding:0 16px}
+  .logo-wordmark{display:none}
+  nav a{margin-left:14px;font-size:10px}
+}
 
 main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#444;margin-bottom:10px}
@@ -63,7 +68,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 </head>
 <body>
 <header>
-  <div class="logo"><em>Tour</em> de France <span class="logo-ver">2026</span></div>
+  <div class="logo">🚴 <span class="logo-wordmark">Tour de France </span><em>2026</em></div>
   <nav>
     <a href="tdf-dashboard.html">Today</a>
     <a href="tdf-route.html">Route</a>
