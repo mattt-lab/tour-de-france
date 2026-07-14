@@ -7,41 +7,28 @@ Writes data/drama.json:
   { "stage": <n>, "phase": "stage"|"rest"|"between", "generatedAt": iso,
     "text": "..." }
 
-The frontend validates `stage`/`phase` against what it computes locally
-before rendering (same stale-guard pattern as the F1/World Cup dashboards'
-AI cards) — so a mismatch (e.g. a new stage started since this last ran)
-just shows nothing rather than stale commentary.
+The frontend validates `drama.stage` against the stage it's currently
+spotlighting before rendering (same stale-guard pattern as the F1/World
+Cup dashboards' AI cards) — so a mismatch (a new stage started since this
+last ran) just shows nothing rather than stale commentary. `phase` is
+informational only; matching is by stage number so the same upcoming
+stage doesn't need new commentary just because its phase label changed
+(e.g. 'between' the evening before -> 'stage' once its own day arrives).
 
-Generates exactly once per stage/phase, then short-circuits on every
-later run (the workflow polls every 10 min) until the stage/phase
-actually changes — Claude calls cost money and the "what to watch for"
-framing doesn't need to change mid-stage. Pass FORCE_DRAMA=true (the
-workflow's force_drama input does this) to bypass and regenerate anyway.
-Falls back to the single best-matching article's own description if
-ANTHROPIC_API_KEY isn't set.
+Generates exactly once per stage, then short-circuits on every later run
+(the workflow polls every 10 min) until the spotlighted stage changes —
+Claude calls cost money and the framing doesn't need to change mid-wait.
+Pass FORCE_DRAMA=true (the workflow's force_drama input does this) to
+bypass and regenerate anyway. Falls back to the single best-matching
+article's own description if ANTHROPIC_API_KEY isn't set.
 """
 import json
 import os
-import re
 import sys
-import urllib.request
 from datetime import datetime, timezone
-from pathlib import Path
 
-NEWS_FEED = "https://www.velonews.com/feed/"
-MODEL = "claude-haiku-4-5-20251001"
+from news_utils import DATA_DIR, load_json, fetch_articles, select_for_stage, enrich_with_bodies, call_claude
 
-DATA_DIR = Path("data")
-
-# Article categories that are almost never useful "what to watch for"
-# race-tactics context, even though they're Tour-adjacent — lifestyle,
-# gear, and gossip pieces the feed mixes in alongside real race analysis.
-CLICKBAIT_PATTERNS = [
-    r"\bhotel room\b", r"\bphoto epic\b", r"\bgallery\b", r"\bquiz\b",
-    r"\bbuyer'?s guide\b", r"\bshop\b", r"\bdeal(s)?\b", r"\bgear\b",
-    r"\bshock (mid-season )?move\b", r"\bpodcast\b", r"\bwatch:\b",
-    r"\bwant(s)? just one thing\b",
-]
 # Terms that mark an article as genuine race-tactics/preview content.
 RELEVANT_PATTERNS = [
     r"\bstage \d+\b", r"\bpreview\b", r"\bclimb(s)?\b", r"\bgc\b",
@@ -51,22 +38,18 @@ RELEVANT_PATTERNS = [
 ]
 
 
-def load_json(path):
-    try:
-        return json.loads((DATA_DIR / path).read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return None
-
-
 def current_context():
-    route = json.loads((DATA_DIR / "route.json").read_text(encoding="utf-8"))
+    route = load_json("route.json") or {}
     standings = load_json("standings.json")
     today = datetime.now(timezone.utc).date().isoformat()
     stages = route["stages"]
 
     today_stage = next((s for s in stages if s["date"] == today and s["n"] > 0), None)
     rest_today = next((s for s in stages if s["date"] == today and s["type"] == "rest"), None)
-    upcoming = sorted((s for s in stages if s["n"] > 0 and s["date"] >= today), key=lambda s: s["n"])
+    # Strictly *after* today, not >= — otherwise once today's own stage has
+    # concluded, this re-selects that same (now-finished) stage as "upcoming"
+    # and the blurb previews a race that already happened.
+    upcoming = sorted((s for s in stages if s["n"] > 0 and s["date"] > today), key=lambda s: s["n"])
     upcoming = upcoming[0] if upcoming else None
 
     # letour.fr's finish-classification table is empty while a stage is
@@ -84,69 +67,6 @@ def current_context():
         phase, spotlight = "between", upcoming  # no stage today, or today's already concluded
 
     return phase, spotlight, standings
-
-
-def clean_description(html):
-    text = re.sub(r"<figure>.*?</figure>", "", html, flags=re.DOTALL)
-    text = re.sub(r"Read the full article at.*", "", text, flags=re.DOTALL)
-    text = re.sub(r"<[^>]+>", " ", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
-
-
-def fetch_articles(limit=25):
-    req = urllib.request.Request(NEWS_FEED, headers={"User-Agent": "TdFDashboard/1.0"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        xml = r.read().decode("utf-8", errors="replace")
-
-    items = re.findall(r"<item>(.*?)</item>", xml, re.DOTALL)
-    articles = []
-    for item in items[:limit]:
-        title_m = re.search(r"<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</title>", item)
-        desc_m = re.search(r"<description>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</description>", item, re.DOTALL)
-        link_m = re.search(r"<link>(.*?)</link>", item)
-        if not title_m:
-            continue
-        title = title_m.group(1).strip()
-        description = clean_description(desc_m.group(1)) if desc_m else ""
-        link = link_m.group(1).strip() if link_m else None
-        articles.append({"title": title, "description": description, "link": link})
-    return articles
-
-
-def fetch_article_body(url, max_paragraphs=6, max_chars=1500):
-    """RSS <description> is just a one-sentence teaser; the actual article
-    page has real paragraphs. Pull the first few for genuine tactical
-    detail (climb order, historical context, etc.) instead of a stub."""
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        html = r.read().decode("utf-8", errors="replace")
-
-    body_idx = html.find('class="o-rte-text')
-    if body_idx == -1:
-        return None
-    # Stop before the next stage's embedded schedule block, if this page
-    # is a multi-stage roundup, so we don't pull in unrelated content.
-    end_idx = html.find('id="stage-', body_idx)
-    chunk = html[body_idx: end_idx if end_idx != -1 else body_idx + 8000]
-
-    paragraphs = re.findall(r"<p[^>]*>(.*?)</p>", chunk, re.DOTALL)
-    text_parts = []
-    for p in paragraphs[:max_paragraphs]:
-        clean = re.sub(r"<[^>]+>", "", p).strip()
-        if clean and "ADVERTISEMENT" not in clean:
-            text_parts.append(clean)
-    text = " ".join(text_parts)
-    return text[:max_chars] if text else None
-
-
-def score_article(a, spotlight_names):
-    text = f"{a['title']} {a['description']}".lower()
-    if any(re.search(p, text) for p in CLICKBAIT_PATTERNS):
-        return -10
-    score = sum(2 for p in RELEVANT_PATTERNS if re.search(p, text))
-    score += sum(3 for name in spotlight_names if name and name.lower() in text)
-    return score
 
 
 def relevant_names(spotlight, standings):
@@ -202,10 +122,14 @@ def main():
     phase, spotlight, standings = current_context()
     stage_n = spotlight["n"] if spotlight else None
 
+    # Keyed on stage number only, not phase: the same upcoming stage can be
+    # labeled 'between'/'rest' and then 'stage' as its own day arrives
+    # without needing new commentary — matching both fields would burn an
+    # extra Claude call right at that day-rollover instant for nothing.
     force = os.environ.get("FORCE_DRAMA", "").strip().lower() == "true"
     existing = load_json("drama.json")
-    if not force and existing and existing.get("stage") == stage_n and existing.get("phase") == phase:
-        print("Already have a blurb for this stage/phase — skipping (no inference cycles spent).")
+    if not force and existing and existing.get("stage") == stage_n:
+        print("Already have a blurb for this stage — skipping (no inference cycles spent).")
         return
     elif force:
         print("FORCE_DRAMA set — bypassing the already-generated guard.")
@@ -217,40 +141,18 @@ def main():
         all_articles = []
 
     names = relevant_names(spotlight, standings)
-    scored = sorted(all_articles, key=lambda a: score_article(a, names), reverse=True)
-    relevant = [a for a in scored if score_article(a, names) > 0][:5]
+    relevant = select_for_stage(all_articles, stage_n, RELEVANT_PATTERNS, names)
     print(f"Selected {len(relevant)} relevant articles of {len(all_articles)} fetched:")
     for a in relevant:
         print(f"  - {a['title']}")
-
-    # RSS <description> is just a one-sentence teaser. Fetch the real body
-    # text for the top 2 articles so there's actual tactical detail to
-    # work with, not just headlines restated as prose.
-    for a in relevant[:2]:
-        if not a.get("link"):
-            continue
-        try:
-            body = fetch_article_body(a["link"])
-            if body:
-                a["description"] = body
-                print(f"  fetched full body for: {a['title']} ({len(body)} chars)")
-        except Exception as e:
-            print(f"  body fetch failed for {a['title']}: {e}")
+    relevant = enrich_with_bodies(relevant)
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     text = None
 
     if api_key:
         try:
-            import anthropic
-            client = anthropic.Anthropic(api_key=api_key)
-            prompt = build_prompt(phase, spotlight, standings, relevant)
-            resp = client.messages.create(
-                model=MODEL,
-                max_tokens=220,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            text = resp.content[0].text.strip()
+            text = call_claude(build_prompt(phase, spotlight, standings, relevant), api_key)
         except Exception as e:
             print(f"Claude call failed: {e}")
 

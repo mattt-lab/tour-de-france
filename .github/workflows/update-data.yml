@@ -9,6 +9,10 @@ on:
         description: 'Force-regenerate the "what to watch for" blurb even if one already exists for the current stage/phase'
         type: boolean
         default: false
+      force_recap:
+        description: 'Force-regenerate the post-stage recap even if one already exists for the most recently concluded stage'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -34,11 +38,17 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FORCE_DRAMA: ${{ github.event.inputs.force_drama }}
 
+      - name: Fetch stage recap
+        run: python scripts/fetch_recap.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FORCE_RECAP: ${{ github.event.inputs.force_recap }}
+
       - name: Commit if changed
         run: |
           git config user.name  "TdF Data Bot"
           git config user.email "actions@github.com"
-          git add data/standings.json data/stage-results/ data/drama.json
+          git add data/standings.json data/stage-results/ data/drama.json data/recap.json
           if git diff --staged --quiet; then
             echo "No changes — skipping commit"
           else

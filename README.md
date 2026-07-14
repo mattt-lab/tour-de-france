@@ -9,7 +9,8 @@
 The dashboard detects where you are in the 21-stage race and shows what's relevant right now:
 
 - **Countdown timer** to the next stage's actual start time (real local start times, not just dates) — always targets whichever stage hasn't started yet, so it points at today's stage before the flag drops and rolls to tomorrow's once it has.
-- **"What to watch for"** — a short AI-written blurb on the countdown card covering the tactical stakes: is the GC leader vulnerable on this terrain, does a jersey holder need teammates to chase a break, what's the news saying. Sourced from current standings + real cycling headlines (Velonews RSS) fed to Claude.
+- **"What to watch for"** — a short AI-written blurb on the countdown card covering the tactical stakes for the *next* stage: is the GC leader vulnerable on this terrain, does a jersey holder need teammates to chase a break. Sourced from current standings + real cycling article content (Velonews) fed to Claude.
+- **"What happened"** — the same treatment for the stage that just finished, shown inside its result card: how the stage actually played out, the key moment, who won and how — not just a list of finishing times.
 - **Rest day?** Yesterday's stage result, current jersey holders, and tomorrow's stage preview with climbs and storyline.
 - **Stage day?** Today's route, terrain, categorized climbs, and official elevation profile, plus the most recent finished stage's result.
 - **Between the Tour?** A countdown to the Grand Départ, or a wrap once the Tour is over.
@@ -70,23 +71,28 @@ GitHub Actions (every 10 min)
     │     │  already on file — see Data freshness below)
     │     └─ GET letour.fr stage result                        → data/stage-results/<n>.json
     │
-    └─ scripts/fetch_drama.py
-          ├─ generates once per stage/phase, then short-circuits on
-          │  every later run until the stage/phase actually changes
-          │  (a stage concludes, the next one starts, etc.) — no
-          │  timer-based re-roll, no wasted Claude calls
-          ├─ GET Velonews RSS + full article bodies for the
-          │  best-matching current headlines
-          ├─ Claude (Haiku) writes 2-4 sentences of "what to watch
-          │  for" from standings + articles → data/drama.json
-          └─ falls back to the best-matching article's own text if
-             ANTHROPIC_API_KEY isn't set
+    ├─ scripts/fetch_drama.py       ("what to watch for" — the NEXT stage)
+    │     ├─ generates once per stage, then short-circuits on every
+    │     │  later run until the spotlighted stage changes — no
+    │     │  timer-based re-roll, no wasted Claude calls
+    │     ├─ GET Velonews RSS + full article bodies for the
+    │     │  best-matching current headlines
+    │     ├─ Claude (Haiku) writes 2-4 sentences from standings +
+    │     │  articles → data/drama.json
+    │     └─ falls back to the best-matching article's own text if
+    │        ANTHROPIC_API_KEY isn't set
+    │
+    └─ scripts/fetch_recap.py       ("what happened" — the LAST stage)
+          ├─ same approach, pointed at whichever stage most recently
+          │  concluded (result field size >= 20) instead of the one
+          │  coming up; generates once per concluded stage
+          └─ writes data/recap.json, shown inside the Stage Result card
 
 GitHub Pages serves data/*.json same-origin → no CORS issues
 Dashboard re-fetches everything and re-renders every 60s client-side
 ```
 
-The dashboard validates `drama.json`'s `stage`/`phase` fields against what it computes client-side before rendering — a stale or mismatched blurb just doesn't show, same stale-guard pattern as the F1/World Cup dashboards' AI cards.
+Both blurbs key strictly on stage *number* (not phase) when the dashboard decides whether to render them — the same upcoming stage can be labeled 'between'/'rest' one day and 'stage' the next without needing new commentary, so requiring both fields to match was hiding valid blurbs right at that day-rollover instant. Article relevance scoring (`scripts/news_utils.py`, shared by both scripts) also explicitly boosts exact stage-number mentions and penalizes mentions of a *different* specific stage — a generic keyword match plus rider-name overlap isn't enough to tell a Stage 10 article apart from a Stage 11 one when the same riders feature in both.
 
 ---
 
@@ -98,7 +104,8 @@ The dashboard validates `drama.json`'s `stage`/`phase` fields against what it co
 | Stage start times | letour.fr itinerary tab (`data/stage-times.json`) | Fixed for the season |
 | GC / Points / Mountains / Youth / Teams | letour.fr | Refetched every 10 min on stage days, ~daily otherwise |
 | Stage results | letour.fr | Same as above |
-| "What to watch for" blurb | Claude + Velonews RSS (`data/drama.json`) | Generated once per stage/phase, not on a timer |
+| "What to watch for" blurb (next stage) | Claude + Velonews RSS (`data/drama.json`) | Generated once per stage, not on a timer |
+| "What happened" recap (last stage) | Claude + Velonews RSS (`data/recap.json`) | Generated once per concluded stage, not on a timer |
 | Dashboard page itself | Client-side fetch | Re-fetches and re-renders every 60s while the tab is open |
 
 ---
@@ -131,7 +138,7 @@ python scripts/fetch_data.py
 3. Add an `ANTHROPIC_API_KEY` repo secret (Settings → Secrets and variables → Actions) if you want the AI-written "what to watch for" blurb — without it, `fetch_drama.py` still runs and falls back to a plain headline stitch.
 4. Trigger the `Update Tour de France Data` workflow manually once to seed the JSON files (or just wait for the next scheduled run).
 
-Since the blurb only generates once per stage/phase, to force a fresh one on demand rather than deleting `data/drama.json` by hand: Actions tab → **Update Tour de France Data** → **Run workflow** → check **force_drama**.
+Since each blurb only generates once per stage, to force a fresh one on demand rather than deleting the JSON by hand: Actions tab → **Update Tour de France Data** → **Run workflow** → check **force_drama** (next-stage preview) and/or **force_recap** (last-stage recap).
 
 ---
 
@@ -143,7 +150,7 @@ Since the blurb only generates once per stage/phase, to force a fresh one on dem
 | Data pipeline | GitHub Actions + Python (`requests`, `selectolax`, `anthropic`) |
 | Frontend | Vanilla HTML/CSS/JS — no framework, no bundler |
 | Data source | letour.fr (official site, scraped) |
-| "What to watch for" blurb | Claude Haiku + Velonews RSS |
+| Preview + recap blurbs | Claude Haiku + Velonews RSS |
 
 ---
 
