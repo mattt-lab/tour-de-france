@@ -61,6 +61,12 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .drama-blurb{font-size:14px;line-height:1.6;color:#ddd;margin-top:16px;padding-top:16px;border-top:1px solid #222}
 .drama-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#666;margin-bottom:6px}
 
+.countdown-card:has(.live-badge){border-top-color:#ff1f3d}
+.live-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#ff1f3d;margin-bottom:8px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#ff1f3d;flex-shrink:0;animation:live-pulse 1.4s ease-in-out infinite}
+@keyframes live-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+.live-status{font-size:13px;color:#ccc;margin-top:4px}
+
 /* Terrain badges */
 .terrain{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:20px;padding:3px 10px}
 .terrain-flat{color:#38bdf8;border:1px solid rgba(56,189,248,.35)}
@@ -128,7 +134,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.0</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.1</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -206,6 +212,12 @@ function tickCountdown(targetDt){
   if(diff > 0) setTimeout(() => tickCountdown(targetDt), 1000);
 }
 
+function elapsedLabel(startDt, now){
+  const totalMin = Math.floor((now - startDt) / 60000);
+  const h = Math.floor(totalMin / 60), m = totalMin % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
 async function main(){
   const route = await tryFetch('data/route.json');
   const standings = await tryFetch('data/standings.json');
@@ -221,20 +233,50 @@ async function main(){
   const todayStr = ymd(now);
 
   const todayStage = stages.find(s => s.date === todayStr);
-  const completed = stages.filter(s => s.n > 0 && s.date < todayStr).sort((a,b)=>b.n-a.n)[0];
-  const upcoming = stages.filter(s => s.n > 0 && s.date >= todayStr).sort((a,b)=>a.n-b.n)[0];
+  const isRestToday = !!(todayStage && todayStage.type === 'rest');
+  const realTodayStage = (todayStage && !isRestToday) ? todayStage : null;
+
+  // A stage's finish classification table is empty on letour.fr while the
+  // race is still on the road and jumps straight to the full field once
+  // it closes — so "result has a real field size" is a reliable signal
+  // for "this stage has actually concluded", unlike just checking the date.
+  let todayResult = null;
+  if(realTodayStage) todayResult = await tryFetch(`data/stage-results/${realTodayStage.n}.json`);
+  const todayConcluded = !!(todayResult && todayResult.result && todayResult.result.length >= 20);
+
+  let todayStartDt = null;
+  if(realTodayStage){
+    const t = (stageTimes && stageTimes[String(realTodayStage.n)]) || '13:00';
+    todayStartDt = new Date(`${realTodayStage.date}T${t}:00+02:00`);
+  }
+  const todayLive = !!(realTodayStage && todayStartDt && now >= todayStartDt && !todayConcluded);
+  // Covers both "hasn't started yet" and "on the road right now" — in
+  // both cases today's own stage stays the focus rather than jumping
+  // ahead to tomorrow's countdown.
+  const focusIsToday = !!(realTodayStage && !todayConcluded);
 
   let phase;
   if(todayStr < first.date) phase = 'countdown';
   else if(todayStr > last.date) phase = 'complete';
-  else if(todayStage && todayStage.type === 'rest') phase = 'rest';
-  else if(todayStage) phase = 'stage';
-  else phase = 'between';
+  else if(isRestToday) phase = 'rest';
+  else if(focusIsToday) phase = 'stage';
+  else phase = 'between'; // no stage today, or today's already concluded — look ahead
+
+  const countdownTarget = pickCountdownTarget(stages, stageTimes, now);
+  const spotlight = focusIsToday ? realTodayStage : countdownTarget;
+  const dramaValid = !!(spotlight && drama && drama.stage === spotlight.n && drama.phase === phase);
 
   let html = '';
-  const countdownTarget = pickCountdownTarget(stages, stageTimes, now);
-  if(countdownTarget){
-    const dramaValid = drama && drama.stage === countdownTarget.n && drama.phase === phase;
+
+  if(todayLive){
+    html += `<div class="countdown-card">
+      <div class="live-badge"><span class="live-dot"></span>Live</div>
+      <div class="countdown-title">${realTodayStage.start} → ${realTodayStage.finish}</div>
+      <div class="countdown-subtitle">${realTodayStage.distanceKm} km · ${TERRAIN_LABEL[realTodayStage.type]}</div>
+      <div class="live-status">Stage ${realTodayStage.n} is underway — on the road for ${elapsedLabel(todayStartDt, now)}</div>
+      ${dramaValid ? `<div class="drama-blurb"><div class="drama-label">What to watch for</div>${drama.text}</div>` : ''}
+    </div>`;
+  } else if(countdownTarget){
     html += `<div class="countdown-card">
       <div class="countdown-badge">Stage ${countdownTarget.n} / 21</div>
       <div class="countdown-title">${countdownTarget.start} → ${countdownTarget.finish}</div>
@@ -264,10 +306,10 @@ async function main(){
     html += `</div>`;
   }
 
-  // Upcoming / today stage card
-  const spotlight = (phase === 'stage') ? todayStage : upcoming;
+  // Today's / next stage card — same spotlight stage the topper is
+  // focused on, so this section and the topper never disagree.
   if(spotlight){
-    html += `<div class="section-label">${phase === 'stage' ? "Today's Stage" : 'Next Stage'}</div>`;
+    html += `<div class="section-label">${focusIsToday ? "Today's Stage" : 'Next Stage'}</div>`;
     html += `<div class="stage-card">
       ${terrainBadge(spotlight.type, TERRAIN_LABEL[spotlight.type])}
       <div class="stage-route">Stage ${spotlight.n} · ${spotlight.start} → ${spotlight.finish}</div>
@@ -278,10 +320,14 @@ async function main(){
     </div>`;
   }
 
-  // Completed stage wrap
-  if(completed){
-    const result = await tryFetch(`data/stage-results/${completed.n}.json`);
-    html += `<div class="section-label">Stage ${completed.n} Result — ${completed.start} → ${completed.finish}</div>`;
+  // Most recent finished stage's result — today's own stage once it has
+  // actually concluded (result data available), otherwise the last
+  // previous-day stage.
+  const mostRecentPast = stages.filter(s => s.n > 0 && s.date < todayStr).sort((a,b)=>b.n-a.n)[0];
+  const resultStage = todayConcluded ? realTodayStage : mostRecentPast;
+  if(resultStage){
+    const result = todayConcluded ? todayResult : await tryFetch(`data/stage-results/${resultStage.n}.json`);
+    html += `<div class="section-label">Stage ${resultStage.n} Result — ${resultStage.start} → ${resultStage.finish}</div>`;
     if(result && result.result && result.result.length){
       html += `<div class="stage-card">`;
       result.result.slice(0,5).forEach(r => {
@@ -294,7 +340,7 @@ async function main(){
       });
       html += `</div>`;
     } else {
-      html += `<div class="stage-card"><div class="storyline">${completed.storyline}</div></div>`;
+      html += `<div class="stage-card"><div class="storyline">${resultStage.storyline}</div></div>`;
     }
   }
 
@@ -302,7 +348,7 @@ async function main(){
   html += `<a class="card-link" href="tdf-standings.html"><div class="t">Full Standings →</div><div class="s">GC, Points, Mountains, Youth, Teams</div></a>`;
 
   app.innerHTML = html;
-  if(countdownTarget) tickCountdown(countdownTarget.startDt);
+  if(!todayLive && countdownTarget) tickCountdown(countdownTarget.startDt);
 }
 
 main();

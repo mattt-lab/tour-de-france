@@ -68,12 +68,19 @@ def current_context():
     upcoming = sorted((s for s in stages if s["n"] > 0 and s["date"] >= today), key=lambda s: s["n"])
     upcoming = upcoming[0] if upcoming else None
 
-    if today_stage:
-        phase, spotlight = "stage", today_stage
+    # letour.fr's finish-classification table is empty while a stage is
+    # still on the road and jumps straight to the full field once it
+    # closes, so field size is a reliable "has this stage concluded" —
+    # matches the frontend's identical check so stage/phase always agree.
+    today_result = load_json(f"stage-results/{today_stage['n']}.json") if today_stage else None
+    today_concluded = bool(today_result and len(today_result.get("result", [])) >= 20)
+
+    if today_stage and not today_concluded:
+        phase, spotlight = "stage", today_stage  # covers both pre-start and live
     elif rest_today:
         phase, spotlight = "rest", upcoming
     else:
-        phase, spotlight = "between", upcoming
+        phase, spotlight = "between", upcoming  # no stage today, or today's already concluded
 
     return phase, spotlight, standings
 
