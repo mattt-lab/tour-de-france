@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '*/30 * * * *'  # Every 30 min all day; script exits early on non-stage days
   workflow_dispatch:
+    inputs:
+      force_drama:
+        description: 'Force-regenerate the "what to watch for" blurb (bypass the 4h staleness guard)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -27,6 +32,7 @@ jobs:
         run: python scripts/fetch_drama.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FORCE_DRAMA: ${{ github.event.inputs.force_drama }}
 
       - name: Commit if changed
         run: |

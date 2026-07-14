@@ -125,6 +125,8 @@ python scripts/fetch_data.py
 3. Add an `ANTHROPIC_API_KEY` repo secret (Settings → Secrets and variables → Actions) if you want the AI-written "what to watch for" blurb — without it, `fetch_drama.py` still runs and falls back to a plain headline stitch.
 4. Trigger the `Update Tour de France Data` workflow manually once to seed the JSON files (or just wait for the next scheduled run).
 
+To force-regenerate the "what to watch for" blurb on demand (bypassing its 4h staleness guard) rather than deleting `data/drama.json` by hand: Actions tab → **Update Tour de France Data** → **Run workflow** → check **force_drama**.
+
 ---
 
 ## Tech stack

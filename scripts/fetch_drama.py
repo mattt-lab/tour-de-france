@@ -194,12 +194,15 @@ def main():
     phase, spotlight, standings = current_context()
     stage_n = spotlight["n"] if spotlight else None
 
+    force = os.environ.get("FORCE_DRAMA", "").strip().lower() == "true"
     existing = load_json("drama.json")
-    if existing and existing.get("stage") == stage_n and existing.get("phase") == phase:
+    if not force and existing and existing.get("stage") == stage_n and existing.get("phase") == phase:
         age_h = (datetime.now(timezone.utc) - datetime.fromisoformat(existing["generatedAt"])).total_seconds() / 3600
         if age_h < STALE_HOURS:
             print("Drama blurb still fresh for this stage/phase — skipping.")
             return
+    elif force:
+        print("FORCE_DRAMA set — bypassing staleness guard.")
 
     try:
         all_articles = fetch_articles()
