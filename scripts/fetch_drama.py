@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """fetch_drama.py — Generate a short "what to watch for" color-commentary
 blurb for the dashboard's Stage Day topper, using current standings +
-real cycling news headlines fed to Claude.
+real cycling article content (not just headlines) fed to Claude.
 
 Writes data/drama.json:
   { "stage": <n>, "phase": "stage"|"rest"|"between", "generatedAt": iso,
@@ -15,9 +15,11 @@ just shows nothing rather than stale commentary.
 Regenerates only when the current stage/phase context has changed, or the
 existing file is more than STALE_HOURS old — Claude calls cost money and
 the "what to watch for" framing doesn't need to change every 30 minutes.
-Falls back to a plain headline stitch if ANTHROPIC_API_KEY isn't set.
+Falls back to the single best-matching article's own description if
+ANTHROPIC_API_KEY isn't set.
 """
 import json
+import os
 import re
 import sys
 import urllib.request
@@ -29,6 +31,23 @@ NEWS_FEED = "https://www.velonews.com/feed/"
 MODEL = "claude-haiku-4-5-20251001"
 
 DATA_DIR = Path("data")
+
+# Article categories that are almost never useful "what to watch for"
+# race-tactics context, even though they're Tour-adjacent — lifestyle,
+# gear, and gossip pieces the feed mixes in alongside real race analysis.
+CLICKBAIT_PATTERNS = [
+    r"\bhotel room\b", r"\bphoto epic\b", r"\bgallery\b", r"\bquiz\b",
+    r"\bbuyer'?s guide\b", r"\bshop\b", r"\bdeal(s)?\b", r"\bgear\b",
+    r"\bshock (mid-season )?move\b", r"\bpodcast\b", r"\bwatch:\b",
+    r"\bwant(s)? just one thing\b",
+]
+# Terms that mark an article as genuine race-tactics/preview content.
+RELEVANT_PATTERNS = [
+    r"\bstage \d+\b", r"\bpreview\b", r"\bclimb(s)?\b", r"\bgc\b",
+    r"\byellow jersey\b", r"\battack(s|ed|ing)?\b", r"\bbreak\s?away\b",
+    r"\bcrash(ed)?\b", r"\bwins?\b", r"\bwon\b", r"\brest day\b",
+    r"\bpoints? classification\b", r"\bpolka dot\b", r"\bmountains? classification\b",
+]
 
 
 def load_json(path):
@@ -59,18 +78,81 @@ def current_context():
     return phase, spotlight, standings
 
 
-def fetch_headlines(limit=12):
+def clean_description(html):
+    text = re.sub(r"<figure>.*?</figure>", "", html, flags=re.DOTALL)
+    text = re.sub(r"Read the full article at.*", "", text, flags=re.DOTALL)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def fetch_articles(limit=25):
     req = urllib.request.Request(NEWS_FEED, headers={"User-Agent": "TdFDashboard/1.0"})
     with urllib.request.urlopen(req, timeout=15) as r:
         xml = r.read().decode("utf-8", errors="replace")
-    titles = re.findall(r"<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</title>", xml)
-    # Feed/channel metadata repeats the site name ("Velo") as a title;
-    # actual articles are longer than that.
-    articles = [t.strip() for t in titles if t.strip() and t.strip() != "Velo"]
-    return articles[:limit]
+
+    items = re.findall(r"<item>(.*?)</item>", xml, re.DOTALL)
+    articles = []
+    for item in items[:limit]:
+        title_m = re.search(r"<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</title>", item)
+        desc_m = re.search(r"<description>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</description>", item, re.DOTALL)
+        link_m = re.search(r"<link>(.*?)</link>", item)
+        if not title_m:
+            continue
+        title = title_m.group(1).strip()
+        description = clean_description(desc_m.group(1)) if desc_m else ""
+        link = link_m.group(1).strip() if link_m else None
+        articles.append({"title": title, "description": description, "link": link})
+    return articles
 
 
-def build_prompt(phase, spotlight, standings, headlines):
+def fetch_article_body(url, max_paragraphs=6, max_chars=1500):
+    """RSS <description> is just a one-sentence teaser; the actual article
+    page has real paragraphs. Pull the first few for genuine tactical
+    detail (climb order, historical context, etc.) instead of a stub."""
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+    with urllib.request.urlopen(req, timeout=15) as r:
+        html = r.read().decode("utf-8", errors="replace")
+
+    body_idx = html.find('class="o-rte-text')
+    if body_idx == -1:
+        return None
+    # Stop before the next stage's embedded schedule block, if this page
+    # is a multi-stage roundup, so we don't pull in unrelated content.
+    end_idx = html.find('id="stage-', body_idx)
+    chunk = html[body_idx: end_idx if end_idx != -1 else body_idx + 8000]
+
+    paragraphs = re.findall(r"<p[^>]*>(.*?)</p>", chunk, re.DOTALL)
+    text_parts = []
+    for p in paragraphs[:max_paragraphs]:
+        clean = re.sub(r"<[^>]+>", "", p).strip()
+        if clean and "ADVERTISEMENT" not in clean:
+            text_parts.append(clean)
+    text = " ".join(text_parts)
+    return text[:max_chars] if text else None
+
+
+def score_article(a, spotlight_names):
+    text = f"{a['title']} {a['description']}".lower()
+    if any(re.search(p, text) for p in CLICKBAIT_PATTERNS):
+        return -10
+    score = sum(2 for p in RELEVANT_PATTERNS if re.search(p, text))
+    score += sum(3 for name in spotlight_names if name and name.lower() in text)
+    return score
+
+
+def relevant_names(spotlight, standings):
+    names = []
+    if spotlight:
+        names += [spotlight.get("start"), spotlight.get("finish")]
+    if standings:
+        for key in ("gc", "points", "mountains", "youth"):
+            rows = standings.get(key, [])[:3]
+            names += [r["rider"].split()[-1] for r in rows if r.get("rider")]
+    return names
+
+
+def build_prompt(phase, spotlight, standings, articles):
     lines = []
     if standings:
         gc = standings.get("gc", [])[:5]
@@ -92,15 +174,18 @@ def build_prompt(phase, spotlight, standings, headlines):
             f"terrain: {spotlight['typeLabel']}. Climbs: {climb_desc}."
         )
 
-    headline_block = "\n".join(f"- {h}" for h in headlines) if headlines else "(no current headlines available)"
+    if articles:
+        article_block = "\n\n".join(f"- {a['title']}: {a['description']}" for a in articles)
+    else:
+        article_block = "(no relevant articles available)"
 
     return f"""You are writing a short "what to watch for" blurb for a personal Tour de France 2026 dashboard, read by someone who already knows the standings — don't just restate numbers, add insight.
 
 Context:
 {chr(10).join(lines)}
 
-Recent cycling news headlines (use only what's actually relevant, ignore anything unrelated):
-{headline_block}
+Recent cycling articles (title + summary) — use only what's genuinely relevant to today's race tactics or storylines, ignore anything about hotels, gear, podcasts, or other lifestyle content even if it slipped through:
+{article_block}
 
 Write 2-4 sentences of color commentary about what's actually at stake — is a GC leader vulnerable on this terrain, is a rival team likely to attack, does a jersey holder need teammates to control a breakaway, are there tactical or physical factors (heat, climb steepness, crosswinds) that matter. Sports-journalist tone: specific, active verbs, no cliches, no generic filler. Do not start with "As the Tour..." or similar throat-clearing. Output only the blurb text, no preamble."""
 
@@ -117,12 +202,32 @@ def main():
             return
 
     try:
-        headlines = fetch_headlines()
+        all_articles = fetch_articles()
     except Exception as e:
-        print(f"Headline fetch failed: {e}")
-        headlines = []
+        print(f"Article fetch failed: {e}")
+        all_articles = []
 
-    import os
+    names = relevant_names(spotlight, standings)
+    scored = sorted(all_articles, key=lambda a: score_article(a, names), reverse=True)
+    relevant = [a for a in scored if score_article(a, names) > 0][:5]
+    print(f"Selected {len(relevant)} relevant articles of {len(all_articles)} fetched:")
+    for a in relevant:
+        print(f"  - {a['title']}")
+
+    # RSS <description> is just a one-sentence teaser. Fetch the real body
+    # text for the top 2 articles so there's actual tactical detail to
+    # work with, not just headlines restated as prose.
+    for a in relevant[:2]:
+        if not a.get("link"):
+            continue
+        try:
+            body = fetch_article_body(a["link"])
+            if body:
+                a["description"] = body
+                print(f"  fetched full body for: {a['title']} ({len(body)} chars)")
+        except Exception as e:
+            print(f"  body fetch failed for {a['title']}: {e}")
+
     api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
     text = None
 
@@ -130,7 +235,7 @@ def main():
         try:
             import anthropic
             client = anthropic.Anthropic(api_key=api_key)
-            prompt = build_prompt(phase, spotlight, standings, headlines)
+            prompt = build_prompt(phase, spotlight, standings, relevant)
             resp = client.messages.create(
                 model=MODEL,
                 max_tokens=220,
@@ -140,11 +245,14 @@ def main():
         except Exception as e:
             print(f"Claude call failed: {e}")
 
-    if not text and headlines:
-        text = "In the news: " + " ".join(headlines[:2]) + "."
+    if not text and relevant:
+        # No API key: use the single best-matching article's own summary
+        # rather than stitching headlines together.
+        top = relevant[0]
+        text = top["description"] or top["title"]
 
     if not text:
-        print("No blurb generated (no API key and no headlines) — leaving drama.json untouched.")
+        print("No blurb generated (no API key and no relevant articles) — leaving drama.json untouched.")
         return
 
     out = {
