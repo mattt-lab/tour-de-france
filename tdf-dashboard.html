@@ -41,11 +41,25 @@ nav a.active{color:#f5c518}
 main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#444;margin-bottom:10px}
 
-/* Phase banner */
+/* Phase banner (fallback text-only state, e.g. Tour Complete) */
 .phase-banner{background:linear-gradient(135deg,#151515,#181818);border:1px solid #222;border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .phase-chip{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f5c518;border:1px solid rgba(245,197,24,.35);border-radius:20px;padding:3px 10px;margin-bottom:8px}
 .phase-title{font-size:20px;font-weight:800;letter-spacing:-.01em}
 .phase-sub{font-size:12px;color:#666;margin-top:3px}
+
+/* Stage Day topper: countdown + drama blurb */
+.countdown-card{background:linear-gradient(135deg,#151515,#181818);border:1px solid #222;border-top:3px solid #f5c518;border-radius:14px;padding:22px 24px;margin-bottom:24px}
+.countdown-badge{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#f5c518;margin-bottom:8px}
+.countdown-title{font-size:24px;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+.countdown-subtitle{font-size:13px;color:#888}
+.countdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.countdown-box{background:#1a1a1a;border:1px solid #262626;border-radius:10px;padding:14px 4px;text-align:center}
+.cd-num{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.cd-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#666;margin-top:4px}
+.countdown-meta{font-size:12px;color:#888}
+.countdown-relative{color:#22c55e;font-weight:700}
+.drama-blurb{font-size:14px;line-height:1.6;color:#ddd;margin-top:16px;padding-top:16px;border-top:1px solid #222}
+.drama-label{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#666;margin-bottom:6px}
 
 /* Terrain badges */
 .terrain{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:20px;padding:3px 10px}
@@ -114,7 +128,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.7</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v1.8</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -153,42 +167,92 @@ async function tryFetch(url){
   try { const r = await fetch(url); if(!r.ok) return null; return await r.json(); } catch(e){ return null; }
 }
 
+// The stage whose start time is next in the future — this is what the
+// countdown targets, and doubles as the "stage day" phase driver: on the
+// morning of a stage this naturally resolves to today's own stage, and
+// once its start time passes, to tomorrow's.
+function pickCountdownTarget(stages, stageTimes, now){
+  const candidates = stages
+    .filter(s => s.n > 0)
+    .map(s => {
+      const t = (stageTimes && stageTimes[String(s.n)]) || '13:00';
+      return { ...s, startDt: new Date(`${s.date}T${t}:00+02:00`) };
+    })
+    .filter(s => s.startDt > now)
+    .sort((a,b) => a.startDt - b.startDt);
+  return candidates[0] || null;
+}
+
+function formatStartMeta(target, now){
+  const diffMs = target.startDt - now;
+  const diffDays = Math.floor(diffMs / 86400000);
+  const dateStr = target.startDt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'Europe/Paris' });
+  const timeStr = target.startDt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'Europe/Paris' });
+  let relative = '';
+  if(diffDays === 0) relative = '<span class="countdown-relative">Today!</span> · ';
+  else if(diffDays === 1) relative = '<span class="countdown-relative">Tomorrow!</span> · ';
+  return `${relative}Stage start: ${dateStr} at ${timeStr} (Paris time)`;
+}
+
+function tickCountdown(targetDt){
+  const boxes = { d: document.getElementById('cd-days'), h: document.getElementById('cd-hours'), m: document.getElementById('cd-mins'), s: document.getElementById('cd-secs') };
+  if(!boxes.d) return; // card no longer in DOM (navigated away)
+  const diff = Math.max(0, targetDt - new Date());
+  const totalSec = Math.floor(diff / 1000);
+  boxes.d.textContent = Math.floor(totalSec / 86400);
+  boxes.h.textContent = String(Math.floor((totalSec % 86400) / 3600)).padStart(2,'0');
+  boxes.m.textContent = String(Math.floor((totalSec % 3600) / 60)).padStart(2,'0');
+  boxes.s.textContent = String(totalSec % 60).padStart(2,'0');
+  if(diff > 0) setTimeout(() => tickCountdown(targetDt), 1000);
+}
+
 async function main(){
   const route = await tryFetch('data/route.json');
   const standings = await tryFetch('data/standings.json');
   const profiles = await tryFetch('data/profiles.json');
+  const stageTimes = await tryFetch('data/stage-times.json');
+  const drama = await tryFetch('data/drama.json');
   const app = document.getElementById('app');
   if(!route){ app.innerHTML = '<div class="loading">Could not load race data.</div>'; return; }
 
   const stages = route.stages;
   const first = stages[0], last = stages[stages.length-1];
-  const todayStr = ymd(new Date());
+  const now = new Date();
+  const todayStr = ymd(now);
 
   const todayStage = stages.find(s => s.date === todayStr);
   const completed = stages.filter(s => s.n > 0 && s.date < todayStr).sort((a,b)=>b.n-a.n)[0];
   const upcoming = stages.filter(s => s.n > 0 && s.date >= todayStr).sort((a,b)=>a.n-b.n)[0];
 
-  let phase, phaseTitle, phaseSub;
-  if(todayStr < first.date){
-    const days = Math.ceil((new Date(first.date) - new Date(todayStr)) / 86400000);
-    phase = 'countdown'; phaseTitle = `${days} days until the Tour`; phaseSub = `Grand Départ — Stage 1, ${first.start}`;
-  } else if(todayStr > last.date){
-    phase = 'complete'; phaseTitle = 'Tour Complete'; phaseSub = `Champs-Élysées, ${last.date}`;
-  } else if(todayStage && todayStage.type === 'rest'){
-    phase = 'rest'; phaseTitle = 'Rest Day'; phaseSub = todayStage.storyline;
-  } else if(todayStage){
-    phase = 'stage'; phaseTitle = `Stage ${todayStage.n} · ${todayStage.start} → ${todayStage.finish}`; phaseSub = `${todayStage.distanceKm} km · ${TERRAIN_LABEL[todayStage.type]}`;
-  } else {
-    phase = 'between'; phaseTitle = 'Between Stages'; phaseSub = upcoming ? `Next: Stage ${upcoming.n}, ${upcoming.date}` : '';
-  }
+  let phase;
+  if(todayStr < first.date) phase = 'countdown';
+  else if(todayStr > last.date) phase = 'complete';
+  else if(todayStage && todayStage.type === 'rest') phase = 'rest';
+  else if(todayStage) phase = 'stage';
+  else phase = 'between';
 
-  let html = `<div class="phase-banner">
-    <div>
-      <div class="phase-chip">${phase === 'rest' ? 'Rest Day' : phase === 'stage' ? 'Stage Day' : phase === 'countdown' ? 'Countdown' : phase === 'complete' ? 'Complete' : 'Between Stages'}</div>
-      <div class="phase-title">${phaseTitle}</div>
-      <div class="phase-sub">${phaseSub}</div>
-    </div>
-  </div>`;
+  let html = '';
+  const countdownTarget = pickCountdownTarget(stages, stageTimes, now);
+  if(countdownTarget){
+    const dramaValid = drama && drama.stage === countdownTarget.n && drama.phase === phase;
+    html += `<div class="countdown-card">
+      <div class="countdown-badge">Stage ${countdownTarget.n} / 21</div>
+      <div class="countdown-title">${countdownTarget.start} → ${countdownTarget.finish}</div>
+      <div class="countdown-subtitle">${countdownTarget.distanceKm} km · ${TERRAIN_LABEL[countdownTarget.type]}</div>
+      <div class="countdown-grid">
+        <div class="countdown-box"><div class="cd-num" id="cd-days">–</div><div class="cd-label">Days</div></div>
+        <div class="countdown-box"><div class="cd-num" id="cd-hours">–</div><div class="cd-label">Hours</div></div>
+        <div class="countdown-box"><div class="cd-num" id="cd-mins">–</div><div class="cd-label">Mins</div></div>
+        <div class="countdown-box"><div class="cd-num" id="cd-secs">–</div><div class="cd-label">Secs</div></div>
+      </div>
+      <div class="countdown-meta">${formatStartMeta(countdownTarget, now)}</div>
+      ${dramaValid ? `<div class="drama-blurb"><div class="drama-label">What to watch for</div>${drama.text}</div>` : ''}
+    </div>`;
+  } else {
+    const phaseTitle = phase === 'complete' ? 'Tour Complete' : 'Tour de France 2026';
+    const phaseSub = phase === 'complete' ? `Champs-Élysées, ${last.date}` : '';
+    html += `<div class="phase-banner"><div><div class="phase-title">${phaseTitle}</div><div class="phase-sub">${phaseSub}</div></div></div>`;
+  }
 
   // Jersey snapshot
   if(standings){
@@ -238,6 +302,7 @@ async function main(){
   html += `<a class="card-link" href="tdf-standings.html"><div class="t">Full Standings →</div><div class="s">GC, Points, Mountains, Youth, Teams</div></a>`;
 
   app.innerHTML = html;
+  if(countdownTarget) tickCountdown(countdownTarget.startDt);
 }
 
 main();

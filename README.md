@@ -8,8 +8,10 @@
 
 The dashboard detects where you are in the 21-stage race and shows what's relevant right now:
 
+- **Countdown timer** to the next stage's actual start time (real local start times, not just dates) — always targets whichever stage hasn't started yet, so it points at today's stage before the flag drops and rolls to tomorrow's once it has.
+- **"What to watch for"** — a short AI-written blurb on the countdown card covering the tactical stakes: is the GC leader vulnerable on this terrain, does a jersey holder need teammates to chase a break, what's the news saying. Sourced from current standings + real cycling headlines (Velonews RSS) fed to Claude.
 - **Rest day?** Yesterday's stage result, current jersey holders, and tomorrow's stage preview with climbs and storyline.
-- **Stage day?** Today's route, terrain, and categorized climbs, plus the most recent finished stage's result.
+- **Stage day?** Today's route, terrain, categorized climbs, and official elevation profile, plus the most recent finished stage's result.
 - **Between the Tour?** A countdown to the Grand Départ, or a wrap once the Tour is over.
 
 ---
@@ -60,14 +62,26 @@ Route, climbs, and stage storylines (`data/route.json`) are hand-curated — the
 
 ```
 GitHub Actions (every 30 min)
-    └─ scripts/fetch_data.py
-          ├─ skips entirely on non-stage days if standings were
-          │  refreshed within the last 20h (rest days / off days)
-          ├─ GET letour.fr classifications (general + stage)  → data/standings.json
-          └─ GET letour.fr stage result                        → data/stage-results/<n>.json
+    ├─ scripts/fetch_data.py
+    │     ├─ skips entirely on non-stage days if standings were
+    │     │  refreshed within the last 20h (rest days / off days)
+    │     ├─ GET letour.fr classifications (general + stage)  → data/standings.json
+    │     └─ GET letour.fr stage result                        → data/stage-results/<n>.json
+    │
+    └─ scripts/fetch_drama.py
+          ├─ skips if the current stage/phase already has a blurb
+          │  generated within the last 4h — no need to re-roll it
+          │  every 30 minutes, and Claude calls aren't free
+          ├─ GET Velonews RSS for current headlines
+          ├─ Claude (Haiku) writes 2-4 sentences of "what to watch
+          │  for" from standings + headlines → data/drama.json
+          └─ falls back to a plain headline stitch if
+             ANTHROPIC_API_KEY isn't set
 
 GitHub Pages serves data/*.json same-origin → no CORS issues
 ```
+
+The dashboard validates `drama.json`'s `stage`/`phase` fields against what it computes client-side before rendering — a stale or mismatched blurb just doesn't show, same stale-guard pattern as the F1/World Cup dashboards' AI cards.
 
 ---
 
@@ -75,9 +89,11 @@ GitHub Pages serves data/*.json same-origin → no CORS issues
 
 | Data | Source | Freshness |
 |---|---|---|
-| Route, climbs, stage storylines | Hand-curated (`data/route.json`) | Fixed for the season |
+| Route, climbs, stage storylines | Hand-curated from official ASO stage profiles (`data/route.json`) | Fixed for the season |
+| Stage start times | letour.fr itinerary tab (`data/stage-times.json`) | Fixed for the season |
 | GC / Points / Mountains / Youth / Teams | letour.fr | Refetched every 30 min on stage days, ~daily otherwise |
 | Stage results | letour.fr | Same as above |
+| "What to watch for" blurb | Claude + Velonews RSS (`data/drama.json`) | Regenerated when the stage/phase changes, capped at once per 4h |
 
 ---
 
@@ -106,7 +122,8 @@ python scripts/fetch_data.py
 
 1. Push this repo to GitHub.
 2. Enable GitHub Pages (Settings → Pages → Deploy from branch: `main`, root `/`).
-3. Trigger the `Update Tour de France Data` workflow manually once to seed the JSON files (or just wait for the next scheduled run).
+3. Add an `ANTHROPIC_API_KEY` repo secret (Settings → Secrets and variables → Actions) if you want the AI-written "what to watch for" blurb — without it, `fetch_drama.py` still runs and falls back to a plain headline stitch.
+4. Trigger the `Update Tour de France Data` workflow manually once to seed the JSON files (or just wait for the next scheduled run).
 
 ---
 
@@ -115,15 +132,15 @@ python scripts/fetch_data.py
 | Layer | Choice |
 |---|---|
 | Hosting | GitHub Pages (static) |
-| Data pipeline | GitHub Actions + Python (`requests`, `selectolax`) |
+| Data pipeline | GitHub Actions + Python (`requests`, `selectolax`, `anthropic`) |
 | Frontend | Vanilla HTML/CSS/JS — no framework, no bundler |
 | Data source | letour.fr (official site, scraped) |
+| "What to watch for" blurb | Claude Haiku + Velonews RSS |
 
 ---
 
 ## Possible follow-ups
 
-- AI-written stage preview/wrap card (Claude Haiku) with a stale-guard so it never shows the wrong stage.
 - Abandon/DNF tracking for the team & rider status view.
 - Live in-stage gap/breakaway status while a stage is on the road.
 
