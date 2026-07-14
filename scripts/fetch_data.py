@@ -24,7 +24,7 @@ Writes:
   data/standings.json        — general classifications for the latest stage
   data/stage-results/{n}.json — stage-specific classifications for stage n
 
-Runs every ~30 min during stage hours via GitHub Actions; a rest day only
+Runs every ~10 min during stage hours via GitHub Actions; a rest day only
 needs an occasional refresh since nothing changes.
 """
 

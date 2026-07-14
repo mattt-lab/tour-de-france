@@ -134,7 +134,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.2</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.3</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -200,7 +200,13 @@ function formatStartMeta(target, now){
   return `${relative}Stage start: ${dateStr} at ${timeStr} (Paris time)`;
 }
 
-function tickCountdown(targetDt){
+// Bumped on every re-render so a countdown ticker from a previous render
+// (before the 60s data refresh replaced the DOM) stops itself instead of
+// stacking up alongside the new one.
+let renderGen = 0;
+
+function tickCountdown(targetDt, gen){
+  if(gen !== renderGen) return; // a newer render has taken over
   const boxes = { d: document.getElementById('cd-days'), h: document.getElementById('cd-hours'), m: document.getElementById('cd-mins'), s: document.getElementById('cd-secs') };
   if(!boxes.d) return; // card no longer in DOM (navigated away)
   const diff = Math.max(0, targetDt - new Date());
@@ -209,7 +215,7 @@ function tickCountdown(targetDt){
   boxes.h.textContent = String(Math.floor((totalSec % 86400) / 3600)).padStart(2,'0');
   boxes.m.textContent = String(Math.floor((totalSec % 3600) / 60)).padStart(2,'0');
   boxes.s.textContent = String(totalSec % 60).padStart(2,'0');
-  if(diff > 0) setTimeout(() => tickCountdown(targetDt), 1000);
+  if(diff > 0) setTimeout(() => tickCountdown(targetDt, gen), 1000);
 }
 
 function elapsedLabel(startDt, now){
@@ -218,7 +224,11 @@ function elapsedLabel(startDt, now){
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-async function main(){
+async function renderDashboard(){
+  renderGen++;
+  const myGen = renderGen;
+  const scrollY = window.scrollY;
+
   const route = await tryFetch('data/route.json');
   const standings = await tryFetch('data/standings.json');
   const profiles = await tryFetch('data/profiles.json');
@@ -348,10 +358,12 @@ async function main(){
   html += `<a class="card-link" href="tdf-standings.html"><div class="t">Full Standings →</div><div class="s">GC, Points, Mountains, Youth, Teams</div></a>`;
 
   app.innerHTML = html;
-  if(!todayLive && countdownTarget) tickCountdown(countdownTarget.startDt);
+  window.scrollTo(0, scrollY);
+  if(!todayLive && countdownTarget) tickCountdown(countdownTarget.startDt, myGen);
 }
 
-main();
+renderDashboard();
+setInterval(renderDashboard, 60000); // re-fetch + re-render every 60s
 </script>
 </body>
 </html>

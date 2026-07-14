@@ -2,11 +2,11 @@ name: Update Tour de France Data
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # Every 30 min all day; script exits early on non-stage days
+    - cron: '*/10 * * * *'  # Every 10 min all day; script exits early on non-stage days
   workflow_dispatch:
     inputs:
       force_drama:
-        description: 'Force-regenerate the "what to watch for" blurb (bypass the 4h staleness guard)'
+        description: 'Force-regenerate the "what to watch for" blurb even if one already exists for the current stage/phase'
         type: boolean
         default: false
 

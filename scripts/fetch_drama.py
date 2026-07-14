@@ -12,9 +12,11 @@ before rendering (same stale-guard pattern as the F1/World Cup dashboards'
 AI cards) — so a mismatch (e.g. a new stage started since this last ran)
 just shows nothing rather than stale commentary.
 
-Regenerates only when the current stage/phase context has changed, or the
-existing file is more than STALE_HOURS old — Claude calls cost money and
-the "what to watch for" framing doesn't need to change every 30 minutes.
+Generates exactly once per stage/phase, then short-circuits on every
+later run (the workflow polls every 10 min) until the stage/phase
+actually changes — Claude calls cost money and the "what to watch for"
+framing doesn't need to change mid-stage. Pass FORCE_DRAMA=true (the
+workflow's force_drama input does this) to bypass and regenerate anyway.
 Falls back to the single best-matching article's own description if
 ANTHROPIC_API_KEY isn't set.
 """
@@ -26,7 +28,6 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-STALE_HOURS = 4
 NEWS_FEED = "https://www.velonews.com/feed/"
 MODEL = "claude-haiku-4-5-20251001"
 
@@ -204,12 +205,10 @@ def main():
     force = os.environ.get("FORCE_DRAMA", "").strip().lower() == "true"
     existing = load_json("drama.json")
     if not force and existing and existing.get("stage") == stage_n and existing.get("phase") == phase:
-        age_h = (datetime.now(timezone.utc) - datetime.fromisoformat(existing["generatedAt"])).total_seconds() / 3600
-        if age_h < STALE_HOURS:
-            print("Drama blurb still fresh for this stage/phase — skipping.")
-            return
+        print("Already have a blurb for this stage/phase — skipping (no inference cycles spent).")
+        return
     elif force:
-        print("FORCE_DRAMA set — bypassing staleness guard.")
+        print("FORCE_DRAMA set — bypassing the already-generated guard.")
 
     try:
         all_articles = fetch_articles()

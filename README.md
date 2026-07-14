@@ -61,24 +61,29 @@ Route, climbs, and stage storylines (`data/route.json`) are hand-curated — the
 ## Data pipeline
 
 ```
-GitHub Actions (every 30 min)
+GitHub Actions (every 10 min)
     ├─ scripts/fetch_data.py
     │     ├─ skips entirely on non-stage days if standings were
     │     │  refreshed within the last 20h (rest days / off days)
     │     ├─ GET letour.fr classifications (general + stage)  → data/standings.json
+    │     │  (never lets an empty live-stage scrape overwrite data
+    │     │  already on file — see Data freshness below)
     │     └─ GET letour.fr stage result                        → data/stage-results/<n>.json
     │
     └─ scripts/fetch_drama.py
-          ├─ skips if the current stage/phase already has a blurb
-          │  generated within the last 4h — no need to re-roll it
-          │  every 30 minutes, and Claude calls aren't free
-          ├─ GET Velonews RSS for current headlines
+          ├─ generates once per stage/phase, then short-circuits on
+          │  every later run until the stage/phase actually changes
+          │  (a stage concludes, the next one starts, etc.) — no
+          │  timer-based re-roll, no wasted Claude calls
+          ├─ GET Velonews RSS + full article bodies for the
+          │  best-matching current headlines
           ├─ Claude (Haiku) writes 2-4 sentences of "what to watch
-          │  for" from standings + headlines → data/drama.json
-          └─ falls back to a plain headline stitch if
+          │  for" from standings + articles → data/drama.json
+          └─ falls back to the best-matching article's own text if
              ANTHROPIC_API_KEY isn't set
 
 GitHub Pages serves data/*.json same-origin → no CORS issues
+Dashboard re-fetches everything and re-renders every 60s client-side
 ```
 
 The dashboard validates `drama.json`'s `stage`/`phase` fields against what it computes client-side before rendering — a stale or mismatched blurb just doesn't show, same stale-guard pattern as the F1/World Cup dashboards' AI cards.
@@ -91,9 +96,10 @@ The dashboard validates `drama.json`'s `stage`/`phase` fields against what it co
 |---|---|---|
 | Route, climbs, stage storylines | Hand-curated from official ASO stage profiles (`data/route.json`) | Fixed for the season |
 | Stage start times | letour.fr itinerary tab (`data/stage-times.json`) | Fixed for the season |
-| GC / Points / Mountains / Youth / Teams | letour.fr | Refetched every 30 min on stage days, ~daily otherwise |
+| GC / Points / Mountains / Youth / Teams | letour.fr | Refetched every 10 min on stage days, ~daily otherwise |
 | Stage results | letour.fr | Same as above |
-| "What to watch for" blurb | Claude + Velonews RSS (`data/drama.json`) | Regenerated when the stage/phase changes, capped at once per 4h |
+| "What to watch for" blurb | Claude + Velonews RSS (`data/drama.json`) | Generated once per stage/phase, not on a timer |
+| Dashboard page itself | Client-side fetch | Re-fetches and re-renders every 60s while the tab is open |
 
 ---
 
@@ -125,7 +131,7 @@ python scripts/fetch_data.py
 3. Add an `ANTHROPIC_API_KEY` repo secret (Settings → Secrets and variables → Actions) if you want the AI-written "what to watch for" blurb — without it, `fetch_drama.py` still runs and falls back to a plain headline stitch.
 4. Trigger the `Update Tour de France Data` workflow manually once to seed the JSON files (or just wait for the next scheduled run).
 
-To force-regenerate the "what to watch for" blurb on demand (bypassing its 4h staleness guard) rather than deleting `data/drama.json` by hand: Actions tab → **Update Tour de France Data** → **Run workflow** → check **force_drama**.
+Since the blurb only generates once per stage/phase, to force a fresh one on demand rather than deleting `data/drama.json` by hand: Actions tab → **Update Tour de France Data** → **Run workflow** → check **force_drama**.
 
 ---
 
