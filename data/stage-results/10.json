@@ -123,7 +123,22 @@
       "b": "-"
     }
   ],
-  "mountains": [],
+  "mountains": [
+    {
+      "rank": "1",
+      "rider": "V. PARET PEINTRE",
+      "rider_no": "93",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "L. VERVAEKE",
+      "rider_no": "98",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "1 PT"
+    }
+  ],
   "youth": [],
   "teams": [],
   "combativity": []

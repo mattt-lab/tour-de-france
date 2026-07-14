@@ -154,15 +154,30 @@ def main():
     DATA_DIR.mkdir(exist_ok=True)
     STAGE_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
+    # letour.fr's general/cumulative classification tables (itg etc.) come
+    # back empty while a stage is on the road, even though the underlying
+    # GC through the previous stage hasn't changed — a site quirk tied to
+    # the live-stage page context, not a real data change. Never let an
+    # empty scrape blank out standings we already have; keep the last good
+    # values (and the stage number they belong to) until real data for the
+    # new stage actually lands.
+    try:
+        existing_standings = json.loads((DATA_DIR / "standings.json").read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        existing_standings = {}
+
+    def keep_or_new(key):
+        return general[key] if general[key] else existing_standings.get(key, [])
+
     standings_out = {
-        "stage": stage,
+        "stage": stage if general["gc"] else existing_standings.get("stage", stage),
         "_meta": {"updated": datetime.now(timezone.utc).isoformat()},
-        "gc": general["gc"],
-        "points": general["points"],
-        "mountains": general["mountains"],
-        "youth": general["youth"],
-        "teams": general["teams"],
-        "combativity": general["combativity"],
+        "gc": keep_or_new("gc"),
+        "points": keep_or_new("points"),
+        "mountains": keep_or_new("mountains"),
+        "youth": keep_or_new("youth"),
+        "teams": keep_or_new("teams"),
+        "combativity": keep_or_new("combativity"),
     }
     (DATA_DIR / "standings.json").write_text(json.dumps(standings_out, indent=2), encoding="utf-8")
 
