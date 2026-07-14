@@ -137,6 +137,125 @@
       "rider_no": "98",
       "team": "SOUDAL QUICK-STEP",
       "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "J. ROMO",
+      "rider_no": "147",
+      "team": "MOVISTAR TEAM",
+      "points": "5 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "V. PARET PEINTRE",
+      "rider_no": "93",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "3 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "A. BAUDIN",
+      "rider_no": "43",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "R. DEBRUYNE",
+      "rider_no": "102",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "J. ROMO",
+      "rider_no": "147",
+      "team": "MOVISTAR TEAM",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "V. PARET PEINTRE",
+      "rider_no": "93",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "J. ROMO",
+      "rider_no": "147",
+      "team": "MOVISTAR TEAM",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "A. BAUDIN",
+      "rider_no": "43",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "10 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "N. PRODHOMME",
+      "rider_no": "57",
+      "team": "DECATHLON CMA CGM TEAM",
+      "points": "8 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "P. SEIXAS",
+      "rider_no": "51",
+      "team": "DECATHLON CMA CGM TEAM",
+      "points": "6 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "I. DEL TORO",
+      "rider_no": "2",
+      "team": "UAE TEAM EMIRATES XRG",
+      "points": "4 PTS"
+    },
+    {
+      "rank": "5",
+      "rider": "T. POGACAR",
+      "rider_no": "1",
+      "team": "UAE TEAM EMIRATES XRG",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "6",
+      "rider": "J. VINGEGAARD",
+      "rider_no": "11",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "T. POGACAR",
+      "rider_no": "1",
+      "team": "UAE TEAM EMIRATES XRG",
+      "points": "10 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "8 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "J. VINGEGAARD",
+      "rider_no": "11",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "6 PTS"
     }
   ],
   "youth": [],
