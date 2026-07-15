@@ -1,8 +1,137 @@
 {
   "stage": 11,
   "result": [],
-  "points": [],
-  "mountains": [],
+  "points": [
+    {
+      "rank": "1",
+      "rider": "M. LE BERRE",
+      "rider_no": "206",
+      "team": "TOTALENERGIES",
+      "points": "25 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "2",
+      "rider": "N. OLIVEIRA",
+      "rider_no": "146",
+      "team": "MOVISTAR TEAM",
+      "points": "20 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "3",
+      "rider": "J. ALAPHILIPPE",
+      "rider_no": "191",
+      "team": "TUDOR PRO CYCLING TEAM",
+      "points": "16 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "4",
+      "rider": "A. CHARMIG",
+      "rider_no": "123",
+      "team": "UNO-X MOBILITY",
+      "points": "14 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "5",
+      "rider": "L. SLOCK",
+      "rider_no": "155",
+      "team": "LOTTO INTERMARCHE",
+      "points": "12 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "6",
+      "rider": "J. PHILIPSEN",
+      "rider_no": "105",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "10 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "7",
+      "rider": "M. KANTER",
+      "rider_no": "64",
+      "team": "XDS ASTANA TEAM",
+      "points": "9 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "8",
+      "rider": "M. PEDERSEN",
+      "rider_no": "33",
+      "team": "LIDL-TREK",
+      "points": "8 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "9",
+      "rider": "B. GIRMAY",
+      "rider_no": "131",
+      "team": "NSN CYCLING TEAM",
+      "points": "7 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "10",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "6 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "11",
+      "rider": "M. VACEK",
+      "rider_no": "37",
+      "team": "LIDL-TREK",
+      "points": "5 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "12",
+      "rider": "M. TEUNISSEN",
+      "rider_no": "66",
+      "team": "XDS ASTANA TEAM",
+      "points": "4 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "13",
+      "rider": "T. VAN ASBROECK",
+      "rider_no": "138",
+      "team": "NSN CYCLING TEAM",
+      "points": "3 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "14",
+      "rider": "T. MERLIER",
+      "rider_no": "91",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "2 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "15",
+      "rider": "H. TEJADA",
+      "rider_no": "65",
+      "team": "XDS ASTANA TEAM",
+      "points": "1 PT",
+      "b": "-"
+    }
+  ],
+  "mountains": [
+    {
+      "rank": "1",
+      "rider": "A. CHARMIG",
+      "rider_no": "123",
+      "team": "UNO-X MOBILITY",
+      "points": "1 PT"
+    }
+  ],
   "youth": [],
   "teams": [],
   "combativity": []
