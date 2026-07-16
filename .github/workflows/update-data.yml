@@ -51,7 +51,16 @@ jobs:
           git add data/standings.json data/stage-results/ data/drama.json data/recap.json
           if git diff --staged --quiet; then
             echo "No changes — skipping commit"
-          else
-            git commit -m "chore: update TdF data [skip ci]"
-            git push
+            exit 0
           fi
+          git commit -m "chore: update TdF data [skip ci]"
+          for i in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $i) — rebasing onto latest origin/main and retrying..."
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo "Push failed after retries"
+          exit 1
