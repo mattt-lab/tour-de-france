@@ -1,7 +1,7 @@
 {
   "stage": 12,
   "_meta": {
-    "updated": "2026-07-16T15:57:50.977292+00:00"
+    "updated": "2026-07-16T17:35:20.445710+00:00"
   },
   "gc": [
     {
@@ -356,6 +356,16 @@
     },
     {
       "rank": "36",
+      "rider": "K. VAUQUELIN",
+      "rider_no": "88",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "times": "44h 10' 17''",
+      "gap": "+ 01h 06' 16''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "37",
       "rider": "Q. SIMMONS",
       "rider_no": "34",
       "team": "LIDL-TREK",
@@ -365,22 +375,12 @@
       "p": "-"
     },
     {
-      "rank": "37",
+      "rank": "38",
       "rider": "D. GEE",
       "rider_no": "32",
       "team": "LIDL-TREK",
       "times": "44h 13' 28''",
       "gap": "+ 01h 09' 27''",
-      "b": "-",
-      "p": "-"
-    },
-    {
-      "rank": "38",
-      "rider": "K. VAUQUELIN",
-      "rider_no": "88",
-      "team": "NETCOMPANY INEOS CYCLING TEAM",
-      "times": "44h 13' 58''",
-      "gap": "+ 01h 09' 57''",
       "b": "-",
       "p": "-"
     },
@@ -1006,6 +1006,16 @@
     },
     {
       "rank": "101",
+      "rider": "J. BERCKMOES",
+      "rider_no": "153",
+      "team": "LOTTO INTERMARCHE",
+      "times": "45h 19' 12''",
+      "gap": "+ 02h 15' 11''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "102",
       "rider": "R. STANNARD",
       "rider_no": "76",
       "team": "BAHRAIN VICTORIOUS",
@@ -1015,7 +1025,7 @@
       "p": "-"
     },
     {
-      "rank": "102",
+      "rank": "103",
       "rider": "M. WALKER",
       "rider_no": "48",
       "team": "EF EDUCATION - EASYPOST",
@@ -1025,7 +1035,7 @@
       "p": "-"
     },
     {
-      "rank": "103",
+      "rank": "104",
       "rider": "F. ENGELHARDT",
       "rider_no": "114",
       "team": "TEAM JAYCO ALULA",
@@ -1035,7 +1045,7 @@
       "p": "-"
     },
     {
-      "rank": "104",
+      "rank": "105",
       "rider": "M. MOHORIC",
       "rider_no": "75",
       "team": "BAHRAIN VICTORIOUS",
@@ -1045,7 +1055,7 @@
       "p": "-"
     },
     {
-      "rank": "105",
+      "rank": "106",
       "rider": "A. KIRSCH",
       "rider_no": "166",
       "team": "COFIDIS",
@@ -1055,7 +1065,7 @@
       "p": "-"
     },
     {
-      "rank": "106",
+      "rank": "107",
       "rider": "S. BERWICK",
       "rider_no": "223",
       "team": "CAJA RURAL-SEGUROS RGA",
@@ -1065,22 +1075,12 @@
       "p": "-"
     },
     {
-      "rank": "107",
+      "rank": "108",
       "rider": "W. BARGUIL",
       "rider_no": "211",
       "team": "TEAM PICNIC POSTNL",
       "times": "45h 23' 56''",
       "gap": "+ 02h 19' 55''",
-      "b": "-",
-      "p": "-"
-    },
-    {
-      "rank": "108",
-      "rider": "J. BERCKMOES",
-      "rider_no": "153",
-      "team": "LOTTO INTERMARCHE",
-      "times": "45h 24' 44''",
-      "gap": "+ 02h 20' 43''",
       "b": "-",
       "p": "-"
     },
@@ -1256,6 +1256,16 @@
     },
     {
       "rank": "126",
+      "rider": "D. GODON",
+      "rider_no": "85",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "times": "45h 33' 40''",
+      "gap": "+ 02h 29' 39''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "127",
       "rider": "E. VERSTRYNGE",
       "rider_no": "108",
       "team": "ALPECIN-PREMIER TECH",
@@ -1265,22 +1275,12 @@
       "p": "-"
     },
     {
-      "rank": "127",
+      "rank": "128",
       "rider": "H. PAGE",
       "rider_no": "167",
       "team": "COFIDIS",
       "times": "45h 36' 47''",
       "gap": "+ 02h 32' 46''",
-      "b": "-",
-      "p": "-"
-    },
-    {
-      "rank": "128",
-      "rider": "D. GODON",
-      "rider_no": "85",
-      "team": "NETCOMPANY INEOS CYCLING TEAM",
-      "times": "45h 37' 21''",
-      "gap": "+ 02h 33' 20''",
       "b": "-",
       "p": "-"
     },
@@ -1356,6 +1356,16 @@
     },
     {
       "rank": "136",
+      "rider": "S. OLDANI",
+      "rider_no": "226",
+      "team": "CAJA RURAL-SEGUROS RGA",
+      "times": "45h 41' 28''",
+      "gap": "+ 02h 37' 27''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "137",
       "rider": "D. HOOLE",
       "rider_no": "54",
       "team": "DECATHLON CMA CGM TEAM",
@@ -1365,7 +1375,7 @@
       "p": "-"
     },
     {
-      "rank": "137",
+      "rank": "138",
       "rider": "F. BIESTERBOS",
       "rider_no": "212",
       "team": "TEAM PICNIC POSTNL",
@@ -1375,7 +1385,7 @@
       "p": "-"
     },
     {
-      "rank": "138",
+      "rank": "139",
       "rider": "G. STEINHAUSER",
       "rider_no": "46",
       "team": "EF EDUCATION - EASYPOST",
@@ -1385,7 +1395,7 @@
       "p": "-"
     },
     {
-      "rank": "139",
+      "rank": "140",
       "rider": "M. KANTER",
       "rider_no": "64",
       "team": "XDS ASTANA TEAM",
@@ -1395,7 +1405,7 @@
       "p": "-"
     },
     {
-      "rank": "140",
+      "rank": "141",
       "rider": "K. NEILANDS",
       "rider_no": "136",
       "team": "NSN CYCLING TEAM",
@@ -1405,7 +1415,7 @@
       "p": "-"
     },
     {
-      "rank": "141",
+      "rank": "142",
       "rider": "B. GIRMAY",
       "rider_no": "131",
       "team": "NSN CYCLING TEAM",
@@ -1415,7 +1425,7 @@
       "p": "-"
     },
     {
-      "rank": "142",
+      "rank": "143",
       "rider": "D. VAN BAARLE",
       "rider_no": "95",
       "team": "SOUDAL QUICK-STEP",
@@ -1425,22 +1435,12 @@
       "p": "-"
     },
     {
-      "rank": "143",
+      "rank": "144",
       "rider": "T. VAN DIJKE",
       "rider_no": "27",
       "team": "RED BULL - BORA - HANSGROHE",
       "times": "45h 45' 17''",
       "gap": "+ 02h 41' 16''",
-      "b": "-",
-      "p": "-"
-    },
-    {
-      "rank": "144",
-      "rider": "S. OLDANI",
-      "rider_no": "226",
-      "team": "CAJA RURAL-SEGUROS RGA",
-      "times": "45h 45' 44''",
-      "gap": "+ 02h 41' 43''",
       "b": "-",
       "p": "-"
     },
@@ -1506,6 +1506,16 @@
     },
     {
       "rank": "151",
+      "rider": "L. SLOCK",
+      "rider_no": "155",
+      "team": "LOTTO INTERMARCHE",
+      "times": "45h 51' 47''",
+      "gap": "+ 02h 47' 46''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "152",
       "rider": "P. EENKHOORN",
       "rider_no": "92",
       "team": "SOUDAL QUICK-STEP",
@@ -1515,7 +1525,7 @@
       "p": "-"
     },
     {
-      "rank": "152",
+      "rank": "153",
       "rider": "T. MARSMAN",
       "rider_no": "104",
       "team": "ALPECIN-PREMIER TECH",
@@ -1525,7 +1535,7 @@
       "p": "-"
     },
     {
-      "rank": "153",
+      "rank": "154",
       "rider": "P. BITTNER",
       "rider_no": "213",
       "team": "TEAM PICNIC POSTNL",
@@ -1535,7 +1545,7 @@
       "p": "-"
     },
     {
-      "rank": "154",
+      "rank": "155",
       "rider": "R. DHONDT",
       "rider_no": "215",
       "team": "TEAM PICNIC POSTNL",
@@ -1545,7 +1555,7 @@
       "p": "-"
     },
     {
-      "rank": "155",
+      "rank": "156",
       "rider": "S. DILLIER",
       "rider_no": "103",
       "team": "ALPECIN-PREMIER TECH",
@@ -1555,7 +1565,7 @@
       "p": "-"
     },
     {
-      "rank": "156",
+      "rank": "157",
       "rider": "N. M\u00c4RKL",
       "rider_no": "216",
       "team": "TEAM PICNIC POSTNL",
@@ -1565,7 +1575,7 @@
       "p": "-"
     },
     {
-      "rank": "157",
+      "rank": "158",
       "rider": "P. ACKERMANN",
       "rider_no": "112",
       "team": "TEAM JAYCO ALULA",
@@ -1575,22 +1585,12 @@
       "p": "-"
     },
     {
-      "rank": "158",
+      "rank": "159",
       "rider": "B. VEISTROFFER",
       "rider_no": "157",
       "team": "LOTTO INTERMARCHE",
       "times": "45h 57' 17''",
       "gap": "+ 02h 53' 16''",
-      "b": "-",
-      "p": "-"
-    },
-    {
-      "rank": "159",
-      "rider": "L. SLOCK",
-      "rider_no": "155",
-      "team": "LOTTO INTERMARCHE",
-      "times": "45h 57' 19''",
-      "gap": "+ 02h 53' 18''",
       "b": "-",
       "p": "-"
     },
@@ -1646,6 +1646,16 @@
     },
     {
       "rank": "165",
+      "rider": "F. GAVIRIA",
+      "rider_no": "221",
+      "team": "CAJA RURAL-SEGUROS RGA",
+      "times": "46h 01' 22''",
+      "gap": "+ 02h 57' 21''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "166",
       "rider": "T. MERLIER",
       "rider_no": "91",
       "team": "SOUDAL QUICK-STEP",
@@ -1655,7 +1665,7 @@
       "p": "-"
     },
     {
-      "rank": "166",
+      "rank": "167",
       "rider": "P. BAUHAUS",
       "rider_no": "72",
       "team": "BAHRAIN VICTORIOUS",
@@ -1665,7 +1675,7 @@
       "p": "-"
     },
     {
-      "rank": "167",
+      "rank": "168",
       "rider": "O. KOOIJ",
       "rider_no": "55",
       "team": "DECATHLON CMA CGM TEAM",
@@ -1675,7 +1685,7 @@
       "p": "-"
     },
     {
-      "rank": "168",
+      "rank": "169",
       "rider": "L. ASKEY",
       "rider_no": "132",
       "team": "NSN CYCLING TEAM",
@@ -1685,7 +1695,7 @@
       "p": "-"
     },
     {
-      "rank": "169",
+      "rank": "170",
       "rider": "D. BALLERINI",
       "rider_no": "62",
       "team": "XDS ASTANA TEAM",
@@ -1695,7 +1705,7 @@
       "p": "-"
     },
     {
-      "rank": "170",
+      "rank": "171",
       "rider": "C. BOL",
       "rider_no": "53",
       "team": "DECATHLON CMA CGM TEAM",
@@ -1705,7 +1715,7 @@
       "p": "-"
     },
     {
-      "rank": "171",
+      "rank": "172",
       "rider": "P. ALLEGAERT",
       "rider_no": "162",
       "team": "COFIDIS",
@@ -1715,22 +1725,12 @@
       "p": "-"
     },
     {
-      "rank": "172",
+      "rank": "173",
       "rider": "K. GRADEK",
       "rider_no": "74",
       "team": "BAHRAIN VICTORIOUS",
       "times": "46h 05' 13''",
       "gap": "+ 03h 01' 12''",
-      "b": "-",
-      "p": "-"
-    },
-    {
-      "rank": "173",
-      "rider": "F. GAVIRIA",
-      "rider_no": "221",
-      "team": "CAJA RURAL-SEGUROS RGA",
-      "times": "46h 05' 38''",
-      "gap": "+ 03h 01' 37''",
       "b": "-",
       "p": "-"
     },
@@ -3036,22 +3036,22 @@
     },
     {
       "rank": "11",
+      "rider": "K. VAUQUELIN",
+      "rider_no": "88",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "times": "44h 10' 17''",
+      "gap": "+ 01h 01' 54''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "12",
       "rider": "Q. SIMMONS",
       "rider_no": "34",
       "team": "LIDL-TREK",
       "times": "44h 13' 12''",
       "gap": "+ 01h 04' 49''",
       "b": "B : 6''",
-      "p": "-"
-    },
-    {
-      "rank": "12",
-      "rider": "K. VAUQUELIN",
-      "rider_no": "88",
-      "team": "NETCOMPANY INEOS CYCLING TEAM",
-      "times": "44h 13' 58''",
-      "gap": "+ 01h 05' 35''",
-      "b": "-",
       "p": "-"
     },
     {
@@ -3166,21 +3166,21 @@
     },
     {
       "rank": "24",
-      "rider": "M. WALKER",
-      "rider_no": "48",
-      "team": "EF EDUCATION - EASYPOST",
-      "times": "45h 20' 00''",
-      "gap": "+ 02h 11' 37''",
+      "rider": "J. BERCKMOES",
+      "rider_no": "153",
+      "team": "LOTTO INTERMARCHE",
+      "times": "45h 19' 12''",
+      "gap": "+ 02h 10' 49''",
       "b": "-",
       "p": "-"
     },
     {
       "rank": "25",
-      "rider": "J. BERCKMOES",
-      "rider_no": "153",
-      "team": "LOTTO INTERMARCHE",
-      "times": "45h 24' 44''",
-      "gap": "+ 02h 16' 21''",
+      "rider": "M. WALKER",
+      "rider_no": "48",
+      "team": "EF EDUCATION - EASYPOST",
+      "times": "45h 20' 00''",
+      "gap": "+ 02h 11' 37''",
       "b": "-",
       "p": "-"
     },
@@ -3455,8 +3455,8 @@
     {
       "rank": "19",
       "team": "CAJA RURAL-SEGUROS RGA",
-      "times": "133h 36' 38''",
-      "gap": "+ 04h 26' 30''",
+      "times": "133h 33' 12''",
+      "gap": "+ 04h 23' 04''",
       "p": "-"
     },
     {

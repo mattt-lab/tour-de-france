@@ -1476,8 +1476,8 @@
       "rider": "D. GODON",
       "rider_no": "85",
       "team": "NETCOMPANY INEOS CYCLING TEAM",
-      "times": "03h 42' 34''",
-      "gap": "+ 00h 03' 41''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -1486,8 +1486,8 @@
       "rider": "K. VAUQUELIN",
       "rider_no": "88",
       "team": "NETCOMPANY INEOS CYCLING TEAM",
-      "times": "03h 42' 34''",
-      "gap": "+ 00h 03' 41''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -1506,8 +1506,8 @@
       "rider": "F. GAVIRIA",
       "rider_no": "221",
       "team": "CAJA RURAL-SEGUROS RGA",
-      "times": "03h 43' 09''",
-      "gap": "+ 00h 04' 16''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -1516,8 +1516,8 @@
       "rider": "S. OLDANI",
       "rider_no": "226",
       "team": "CAJA RURAL-SEGUROS RGA",
-      "times": "03h 43' 09''",
-      "gap": "+ 00h 04' 16''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -1546,8 +1546,8 @@
       "rider": "J. BERCKMOES",
       "rider_no": "153",
       "team": "LOTTO INTERMARCHE",
-      "times": "03h 44' 25''",
-      "gap": "+ 00h 05' 32''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -1556,8 +1556,8 @@
       "rider": "L. SLOCK",
       "rider_no": "155",
       "team": "LOTTO INTERMARCHE",
-      "times": "03h 44' 25''",
-      "gap": "+ 00h 05' 32''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -2347,8 +2347,8 @@
       "rider": "K. VAUQUELIN",
       "rider_no": "88",
       "team": "NETCOMPANY INEOS CYCLING TEAM",
-      "times": "03h 42' 34''",
-      "gap": "+ 00h 03' 41''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -2367,8 +2367,8 @@
       "rider": "J. BERCKMOES",
       "rider_no": "153",
       "team": "LOTTO INTERMARCHE",
-      "times": "03h 44' 25''",
-      "gap": "+ 00h 05' 32''",
+      "times": "03h 38' 53''",
+      "gap": "-",
       "b": "-",
       "p": "-"
     },
@@ -2573,16 +2573,16 @@
     },
     {
       "rank": "22",
-      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "team": "CAJA RURAL-SEGUROS RGA",
       "times": "10h 56' 39''",
       "gap": "-",
       "p": "-"
     },
     {
       "rank": "23",
-      "team": "CAJA RURAL-SEGUROS RGA",
-      "times": "11h 00' 05''",
-      "gap": "+ 00h 03' 26''",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "times": "10h 56' 39''",
+      "gap": "-",
       "p": "-"
     }
   ],
