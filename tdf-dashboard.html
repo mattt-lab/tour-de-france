@@ -142,7 +142,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.4</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.5</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -205,7 +205,20 @@ function formatStartMeta(target, now){
   let relative = '';
   if(diffDays === 0) relative = '<span class="countdown-relative">Today!</span> · ';
   else if(diffDays === 1) relative = '<span class="countdown-relative">Tomorrow!</span> · ';
-  return `${relative}Stage start: ${dateStr} at ${timeStr} (Paris time)`;
+
+  // Viewer's own timezone equivalent — no explicit timeZone option, so
+  // this uses whatever the browser's local timezone is. Day-diff is
+  // computed from local calendar-day getters (also implicitly local),
+  // not from raw elapsed milliseconds, so "Today"/"Tomorrow" is correct
+  // even when the local date has already rolled over relative to Paris.
+  const toLocalMidnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const localDayDiff = Math.round((toLocalMidnight(target.startDt) - toLocalMidnight(now)) / 86400000);
+  const localTimeStr = target.startDt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const localDayLabel = localDayDiff === 0 ? 'Today'
+    : localDayDiff === 1 ? 'Tomorrow'
+    : target.startDt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+  return `${relative}Stage start: ${dateStr} at ${timeStr} (Paris time) &nbsp;|&nbsp; ${localDayLabel} ${localTimeStr} (local time)`;
 }
 
 // Bumped on every re-render so a countdown ticker from a previous render
