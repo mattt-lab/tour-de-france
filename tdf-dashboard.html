@@ -142,7 +142,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.5</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.6</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -197,28 +197,31 @@ function pickCountdownTarget(stages, stageTimes, now){
   return candidates[0] || null;
 }
 
+// Calendar-day label ("Today"/"Tomorrow"/full date) for a given instant in
+// a given IANA timezone (or the browser's local zone if timeZone is
+// omitted) — compares actual calendar dates in that zone, not raw
+// elapsed hours, so it can't mislabel near a midnight boundary.
+function dayLabel(instant, now, timeZone){
+  const opts = timeZone ? { timeZone } : {};
+  const dateKey = d => d.toLocaleDateString('en-CA', opts); // YYYY-MM-DD
+  const diffDays = Math.round((new Date(dateKey(instant) + 'T00:00:00Z') - new Date(dateKey(now) + 'T00:00:00Z')) / 86400000);
+  if(diffDays === 0) return 'Today';
+  if(diffDays === 1) return 'Tomorrow';
+  return instant.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', ...opts });
+}
+
 function formatStartMeta(target, now){
-  const diffMs = target.startDt - now;
-  const diffDays = Math.floor(diffMs / 86400000);
-  const dateStr = target.startDt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'Europe/Paris' });
+  const parisLabel = dayLabel(target.startDt, now, 'Europe/Paris');
   const timeStr = target.startDt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'Europe/Paris' });
-  let relative = '';
-  if(diffDays === 0) relative = '<span class="countdown-relative">Today!</span> · ';
-  else if(diffDays === 1) relative = '<span class="countdown-relative">Tomorrow!</span> · ';
 
   // Viewer's own timezone equivalent — no explicit timeZone option, so
-  // this uses whatever the browser's local timezone is. Day-diff is
-  // computed from local calendar-day getters (also implicitly local),
-  // not from raw elapsed milliseconds, so "Today"/"Tomorrow" is correct
-  // even when the local date has already rolled over relative to Paris.
-  const toLocalMidnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const localDayDiff = Math.round((toLocalMidnight(target.startDt) - toLocalMidnight(now)) / 86400000);
+  // this uses whatever the browser's local timezone is.
+  const localLabel = dayLabel(target.startDt, now, null);
   const localTimeStr = target.startDt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  const localDayLabel = localDayDiff === 0 ? 'Today'
-    : localDayDiff === 1 ? 'Tomorrow'
-    : target.startDt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 
-  return `${relative}Stage start: ${dateStr} at ${timeStr} (Paris time) &nbsp;|&nbsp; ${localDayLabel} ${localTimeStr} (local time)`;
+  const paris = `<span class="countdown-relative">${parisLabel}</span> at ${timeStr} (Paris time)`;
+  const local = `<span class="countdown-relative">${localLabel}</span> ${localTimeStr} (local time)`;
+  return `Stage start: ${paris} &nbsp;|&nbsp; ${local}`;
 }
 
 // Bumped on every re-render so a countdown ticker from a previous render
