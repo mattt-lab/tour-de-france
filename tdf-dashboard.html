@@ -523,7 +523,7 @@ async function renderDashboard(){
   // Local-testing hook: ?mockLive=1 forces the live-tracker state on with
   // fixture data, since the real feed is empty except during an actual
   // live stage. See mockTelemetry()/mockRoster() above.
-  const mockLive = new URLSearchParams(location.search).has('mockLive');
+  const mockLive = [...new URLSearchParams(location.search).keys()].some(k => k.toLowerCase() === 'mocklive');
 
   const route = await tryFetch('data/route.json');
   const standings = await tryFetch('data/standings.json');
