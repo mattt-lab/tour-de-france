@@ -1,0 +1,130 @@
+{
+  "stage": 14,
+  "result": [],
+  "points": [
+    {
+      "rank": "1",
+      "rider": "J. PHILIPSEN",
+      "rider_no": "105",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "25 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "2",
+      "rider": "M. PEDERSEN",
+      "rider_no": "33",
+      "team": "LIDL-TREK",
+      "points": "20 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "3",
+      "rider": "M. KANTER",
+      "rider_no": "64",
+      "team": "XDS ASTANA TEAM",
+      "points": "16 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "4",
+      "rider": "B. GIRMAY",
+      "rider_no": "131",
+      "team": "NSN CYCLING TEAM",
+      "points": "14 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "5",
+      "rider": "J. STEWART",
+      "rider_no": "137",
+      "team": "NSN CYCLING TEAM",
+      "points": "12 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "6",
+      "rider": "E. PLANCKAERT",
+      "rider_no": "106",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "10 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "7",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "9 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "8",
+      "rider": "M. TEUNISSEN",
+      "rider_no": "66",
+      "team": "XDS ASTANA TEAM",
+      "points": "8 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "9",
+      "rider": "T. MARSMAN",
+      "rider_no": "104",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "7 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "10",
+      "rider": "M. VACEK",
+      "rider_no": "37",
+      "team": "LIDL-TREK",
+      "points": "6 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "11",
+      "rider": "L. ASKEY",
+      "rider_no": "132",
+      "team": "NSN CYCLING TEAM",
+      "points": "5 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "12",
+      "rider": "B. ARMIRAIL",
+      "rider_no": "13",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "4 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "13",
+      "rider": "A. JOHANNESSEN",
+      "rider_no": "125",
+      "team": "UNO-X MOBILITY",
+      "points": "3 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "14",
+      "rider": "V. CAMPENAERTS",
+      "rider_no": "14",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "2 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "15",
+      "rider": "N. DENZ",
+      "rider_no": "23",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "points": "1 PT",
+      "b": "-"
+    }
+  ],
+  "mountains": [],
+  "youth": [],
+  "teams": [],
+  "combativity": []
+}
