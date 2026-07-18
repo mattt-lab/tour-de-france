@@ -182,7 +182,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.10</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.11</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -465,8 +465,8 @@ function renderLiveTrackerHtml(stage, telemetry, roster){
     const size = Math.max(5, Math.min(9, 4 + Math.sqrt(g.riders.length)));
     const jerseysHere = g.riders.map(r => ygpwByBib.get(r.Bib)).filter(Boolean);
     const ticks = jerseysHere.map((cls, ti) => {
-      const tickLeft = ((ti - (jerseysHere.length-1)/2) * 9).toFixed(1);
-      return `<span class="live-jtick ${cls}" style="margin-left:${tickLeft}px"></span>`;
+      const tickTop = (ti * -9).toFixed(1);
+      return `<span class="live-jtick ${cls}" style="top:${tickTop}px"></span>`;
     }).join('');
     return `<div class="live-group-marker" data-gidx="${i}" style="left:${left}%">
       ${ticks}
