@@ -80,7 +80,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .live-km-row .cd-num{font-size:28px}
 .live-km-row .cd-label{margin-top:0}
 .live-track-wrap{margin-bottom:14px}
-.live-zoom-caption{font-size:12px;color:#aaa;margin-bottom:8px}
+.live-zoom-caption{font-size:10px;color:#555;margin-top:6px}
 .live-zoom-caption b{color:#eee}
 .live-track{position:relative;height:26px;border-top:2px solid #262626;margin-top:8px}
 .live-track-done{position:absolute;top:-2px;left:0;height:2px;background:#444;transition:width 1s ease}
@@ -92,7 +92,6 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .live-jtick{position:absolute;top:0;left:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;box-shadow:0 0 0 1px #151515}
 .live-group-marker.hover-active .live-group-dot{transform:scale(1.4)}
 .live-group-marker.hover-active .live-jtick{transform:scale(1.3)}
-.live-track-labels{display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:6px}
 .live-chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .live-chip{font-size:11px;color:#888;background:#1a1a1a;border:1px solid #262626;border-radius:20px;padding:4px 10px}
 .live-chip b{color:#eee;font-variant-numeric:tabular-nums}
@@ -183,7 +182,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.9</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.10</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -515,9 +514,8 @@ function renderLiveTrackerHtml(stage, telemetry, roster){
   return `
     <div class="live-km-row"><div class="cd-num">${leadKm.toFixed(1)}</div><div class="cd-label">km to go</div></div>
     <div class="live-track-wrap">
-      <div class="live-zoom-caption">Zoomed to <b>km ${windowMin.toFixed(0)}–${windowMax.toFixed(0)}</b> of the <b>${stageLengthKm} km</b> stage</div>
       <div class="live-track"><span class="live-track-done" style="width:${doneWidth}%"></span>${dotsHtml}</div>
-      <div class="live-track-labels"><span>Start of window</span><span>${(windowMax-windowMin).toFixed(1)} km shown</span><span>Finish of window</span></div>
+      <div class="live-zoom-caption">Zoomed to <b>km ${windowMin.toFixed(0)}–${windowMax.toFixed(0)}</b> of the <b>${stageLengthKm} km</b> stage</div>
     </div>
     <div class="live-chips">
       <div class="live-chip">Gradient <b>${w.Gradient != null ? w.Gradient.toFixed(1)+'%' : '—'}</b></div>
