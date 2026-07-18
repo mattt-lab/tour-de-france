@@ -80,8 +80,8 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .live-km-row .cd-num{font-size:28px}
 .live-km-row .cd-label{margin-top:0}
 .live-track-wrap{margin-bottom:14px}
-.live-minimap{position:relative;height:6px;background:#1e1e1e;border-radius:3px;margin-bottom:8px}
-.live-minimap-window{position:absolute;top:-1px;bottom:-1px;border:1px solid #f5c518;border-radius:3px;opacity:.6;transition:left .8s ease,width .8s ease}
+.live-zoom-caption{font-size:12px;color:#aaa;margin-bottom:8px}
+.live-zoom-caption b{color:#eee}
 .live-track{position:relative;height:26px;border-top:2px solid #262626;margin-top:8px}
 .live-track-done{position:absolute;top:-2px;left:0;height:2px;background:#444;transition:width 1s ease}
 .live-group-marker{position:absolute;top:-24px;width:22px;height:28px;margin-left:-11px;transition:left 1s ease;cursor:pointer}
@@ -178,7 +178,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.7</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.8</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -473,18 +473,14 @@ function renderLiveTrackerHtml(stage, telemetry, roster){
   }).join('');
 
   const doneWidth = pctOfElapsed(stageLengthKm - leadKm).toFixed(2);
-  const windowLeftPct = ((windowMin / stageLengthKm) * 100).toFixed(2);
-  const windowWidthPct = (((windowMax - windowMin) / stageLengthKm) * 100).toFixed(2);
-  const startLabel = windowMin < 1 ? 'Start' : `${windowMin.toFixed(0)} km from start`;
-  const finishLabel = (stageLengthKm - windowMax) < 1 ? 'Finish' : `${(stageLengthKm - windowMax).toFixed(0)} km from finish`;
   const w = telemetry.Riders[0] || {};
 
   return `
     <div class="live-km-row"><div class="cd-num">${leadKm.toFixed(1)}</div><div class="cd-label">km to go</div></div>
     <div class="live-track-wrap">
-      <div class="live-minimap"><div class="live-minimap-window" style="left:${windowLeftPct}%;width:${windowWidthPct}%"></div></div>
+      <div class="live-zoom-caption">Zoomed to <b>km ${windowMin.toFixed(0)}–${windowMax.toFixed(0)}</b> of the <b>${stageLengthKm} km</b> stage</div>
       <div class="live-track"><span class="live-track-done" style="width:${doneWidth}%"></span>${dotsHtml}</div>
-      <div class="live-track-labels"><span>${startLabel}</span><span>${(windowMax-windowMin).toFixed(1)} km shown</span><span>${finishLabel}</span></div>
+      <div class="live-track-labels"><span>Start of window</span><span>${(windowMax-windowMin).toFixed(1)} km shown</span><span>Finish of window</span></div>
     </div>
     <div class="live-chips">
       <div class="live-chip">Gradient <b>${w.Gradient != null ? w.Gradient.toFixed(1)+'%' : '—'}</b></div>
