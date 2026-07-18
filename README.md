@@ -9,6 +9,7 @@
 The dashboard detects where you are in the 21-stage race and shows what's relevant right now:
 
 - **Countdown timer** to the next stage's actual start time (real local start times, not just dates) — always targets whichever stage hasn't started yet, so it points at today's stage before the flag drops and rolls to tomorrow's once it has.
+- **Live in-race tracker** — once a stage is actually rolling: km-to-go, the peloton/breakaway/groupetto split with real gaps and speeds on a zoomed group-position bar, and the current jersey holders marked wherever they're actually riding (not assumed to all be in the pack). Updates every 10s. See [Live in-race tracker](#live-in-race-tracker) below.
 - **"What to watch for"** — a short AI-written blurb on the countdown card covering the tactical stakes for the *next* stage: is the GC leader vulnerable on this terrain, does a jersey holder need teammates to chase a break. Sourced from current standings + real cycling article content (Velonews) fed to Claude.
 - **"What happened"** — the same treatment for the stage that just finished, shown inside its result card: how the stage actually played out, the key moment, who won and how — not just a list of finishing times.
 - **Rest day?** Yesterday's stage result, current jersey holders, and tomorrow's stage preview with climbs and storyline.
@@ -55,7 +56,21 @@ GET hop2_url
 
 Route, climbs, and stage storylines (`data/route.json`) are hand-curated — the full 21-stage route is published before the race starts and doesn't change, so it's committed as static data rather than scraped.
 
-**No runtime server.** All pages are static HTML/CSS/JS; data is fetched client-side from committed JSON at load time. `scripts/fetch_data.py` runs on a schedule via GitHub Actions and commits its output back to the repo.
+**No runtime server** for any of the above — all pages are static HTML/CSS/JS; data is fetched client-side from committed JSON at load time. `scripts/fetch_data.py` runs on a schedule via GitHub Actions and commits its output back to the repo. (The live tracker below is the one exception — see why.)
+
+---
+
+## Live in-race tracker
+
+The 10-minute Actions cron above is fine for standings and results, but far too slow for "live." Instead, the live tracker's data comes straight from the browser, sourced from **ASO's own live telemetry API** (`racecenter.letour.fr/api/telemetryCompetitor-{year}`) — the same publisher as the rest of this site's scrape, just a different, undocumented endpoint. While a stage is on the road it returns `RaceStatus: true` and a `Riders[]` array with each rider's bib, distance-to-finish, speed, road gradient, and local weather. There's no lat/lon — rider position is relative (km to finish), so the dashboard derives groups itself by clustering riders whose distance-to-finish is within 0.15km of each other, the same technique used by a couple of other open-source Tour trackers whose source I read while building this.
+
+That endpoint has no CORS headers, so a browser `fetch()` from GitHub Pages is blocked outright. Getting genuinely live (~10s) updates instead of routing through the slow Actions pipeline means something has to add CORS — that's `cloudflare/tdf-telemetry-proxy.js`, a small Worker that just relays any path under the ASO API with `Access-Control-Allow-Origin: *` added. It requires **no API key** (the ASO endpoint itself needs no auth, and neither does the relay) — just a one-time manual deploy to a free Cloudflare account; see the comment block at the top of that file for the exact steps. Once deployed, paste the resulting `*.workers.dev` URL into the `TDF_PROXY` constant near the top of `tdf-dashboard.html`'s script.
+
+Because the real feed is empty except during an actual live stage, `tdf-dashboard.html?mockLive=1` forces the tracker on with realistic fixture data (`mockTelemetry()`/`mockRoster()` in the script) so the rendering, clustering, and zoom-window logic can be tested any day, not just on race days.
+
+Jersey holders (`YGPW` in the feed) are marked with the same colored dot used on the Standings page, both inline next to their name and as a tick above their group's marker on the bar — and are guaranteed a visible slot in their group's rider list rather than getting lost behind a "+114" truncation. The group-position bar is a proportional zoom, not the full stage: the groups occupy the middle 70% of the bar (15% padding each side) so a few km of real gap reads as visible space instead of collapsing on a 150+ km axis, with a thin full-stage context strip above it so the zoom never reads as "this is the whole stage."
+
+Not yet built: the event ticker (breakaway formed, jersey changes, crashes) sourced from Bluesky/journalist chatter — deliberately deferred; see Possible follow-ups.
 
 ---
 
@@ -106,6 +121,7 @@ Both blurbs key strictly on stage *number* (not phase) when the dashboard decide
 | Stage results | letour.fr | Same as above |
 | "What to watch for" blurb (next stage) | Claude + Velonews RSS (`data/drama.json`) | Generated once per stage, not on a timer |
 | "What happened" recap (last stage) | Claude + Velonews RSS (`data/recap.json`) | Generated once per concluded stage, not on a timer |
+| Live tracker (groups, gaps, jerseys, weather) | ASO telemetry API, via the Cloudflare Worker relay | Polled client-side every 10s, only while a stage is actually live |
 | Dashboard page itself | Client-side fetch | Re-fetches and re-renders every 60s while the tab is open |
 
 ---
@@ -137,6 +153,7 @@ python scripts/fetch_data.py
 2. Enable GitHub Pages (Settings → Pages → Deploy from branch: `main`, root `/`).
 3. Add an `ANTHROPIC_API_KEY` repo secret (Settings → Secrets and variables → Actions) if you want the AI-written "what to watch for" blurb — without it, `fetch_drama.py` still runs and falls back to a plain headline stitch.
 4. Trigger the `Update Tour de France Data` workflow manually once to seed the JSON files (or just wait for the next scheduled run).
+5. Deploy `cloudflare/tdf-telemetry-proxy.js` to a free Cloudflare Workers account (see the comment block at the top of that file) and paste the resulting URL into the `TDF_PROXY` constant in `tdf-dashboard.html` — needed only for the live in-race tracker; everything else works without it.
 
 Since each blurb only generates once per stage, to force a fresh one on demand rather than deleting the JSON by hand: Actions tab → **Update Tour de France Data** → **Run workflow** → check **force_drama** (next-stage preview) and/or **force_recap** (last-stage recap).
 
@@ -149,15 +166,16 @@ Since each blurb only generates once per stage, to force a fresh one on demand r
 | Hosting | GitHub Pages (static) |
 | Data pipeline | GitHub Actions + Python (`requests`, `selectolax`, `anthropic`) |
 | Frontend | Vanilla HTML/CSS/JS — no framework, no bundler |
-| Data source | letour.fr (official site, scraped) |
+| Data source | letour.fr (official site, scraped) + ASO live telemetry API (live tracker) |
 | Preview + recap blurbs | Claude Haiku + Velonews RSS |
+| Live tracker relay | Cloudflare Worker (CORS relay only, no logic) |
 
 ---
 
 ## Possible follow-ups
 
 - Abandon/DNF tracking for the team & rider status view.
-- Live in-stage gap/breakaway status while a stage is on the road.
+- Event ticker on the live tracker (breakaway formed, jersey changes, crashes) sourced from Bluesky/journalist chatter — deliberately deferred out of the initial live-tracker build.
 
 ---
 

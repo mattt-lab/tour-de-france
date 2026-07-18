@@ -75,6 +75,38 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 @keyframes live-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
 .live-status{font-size:13px;color:#ccc;margin-top:4px}
 
+/* Live in-race tracker (replaces .live-status when real telemetry is available) */
+.live-km-row{display:flex;align-items:baseline;gap:8px;margin:10px 0 12px}
+.live-km-row .cd-num{font-size:28px}
+.live-km-row .cd-label{margin-top:0}
+.live-track-wrap{margin-bottom:14px}
+.live-minimap{position:relative;height:6px;background:#1e1e1e;border-radius:3px;margin-bottom:8px}
+.live-minimap-window{position:absolute;top:-1px;bottom:-1px;border:1px solid #f5c518;border-radius:3px;opacity:.6;transition:left .8s ease,width .8s ease}
+.live-track{position:relative;height:26px;border-top:2px solid #262626;margin-top:8px}
+.live-track-done{position:absolute;top:-2px;left:0;height:2px;background:#444;transition:width 1s ease}
+.live-group-dot{position:absolute;top:-6px;border-radius:50%;box-shadow:0 0 0 2px #151515;transition:left 1s ease}
+.live-group-dot.breakaway{background:#f5c518}
+.live-group-dot.peloton{background:#999}
+.live-group-dot.groupetto{background:#555}
+.live-jtick{position:absolute;top:-20px;width:7px;height:7px;border-radius:50%;box-shadow:0 0 0 1px #151515;transition:left 1s ease}
+.live-track-labels{display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:6px}
+.live-chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.live-chip{font-size:11px;color:#888;background:#1a1a1a;border:1px solid #262626;border-radius:20px;padding:4px 10px}
+.live-chip b{color:#eee;font-variant-numeric:tabular-nums}
+.live-groups{margin-top:4px}
+.live-group-row{display:flex;align-items:center;gap:12px;padding:10px 0 10px 10px;border-top:1px solid #1e1e1e}
+.live-group-row.breakaway{border-left:3px solid #f5c518}
+.live-group-row.peloton{border-left:3px solid #666}
+.live-group-row.groupetto{border-left:3px solid #333}
+.live-group-meta{width:74px;flex-shrink:0}
+.live-group-gap{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.live-group-gap.lead{color:#f5c518}
+.live-group-count{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.live-group-names{flex:1;min-width:0;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.live-group-speed{font-size:12px;color:#888;font-variant-numeric:tabular-nums;text-align:right;flex-shrink:0}
+.live-group-speed small{display:block;font-size:9px;text-transform:uppercase;color:#555;margin-top:2px}
+.jdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin:0 5px 0 2px;vertical-align:middle}
+
 /* Terrain badges */
 .terrain{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:20px;padding:3px 10px}
 .terrain-flat{color:#38bdf8;border:1px solid rgba(56,189,248,.35)}
@@ -142,7 +174,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.6</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.7</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -248,10 +280,250 @@ function elapsedLabel(startDt, now){
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
+// ── Live in-race tracker ──────────────────────────────────────────────
+// Data comes from ASO's own live telemetry API (racecenter.letour.fr —
+// same publisher as the rest of this site's scrape, just a different,
+// undocumented endpoint). It has no CORS headers, so the browser can't
+// fetch it directly — TDF_PROXY is a small Cloudflare Worker that just
+// relays it with CORS added, so this can poll every 10s instead of
+// waiting on the 10-minute GitHub Actions cron that updates everything
+// else. Fill in the real *.workers.dev URL after deploying
+// cloudflare/tdf-telemetry-proxy.js.
+const TDF_PROXY = 'https://REPLACE-ME.workers.dev';
+const TDF_YEAR = 2026;
+
+async function fetchRoster(){
+  const cacheKey = `tdf_roster_${TDF_YEAR}`;
+  const cached = sessionStorage.getItem(cacheKey);
+  if(cached){ try { return JSON.parse(cached); } catch(e){} }
+  try {
+    const [riders, teams] = await Promise.all([
+      fetch(`${TDF_PROXY}/allCompetitors-${TDF_YEAR}`).then(r => r.ok ? r.json() : null),
+      fetch(`${TDF_PROXY}/team-${TDF_YEAR}`).then(r => r.ok ? r.json() : null),
+    ]);
+    if(!riders) return null;
+    const teamById = {};
+    (teams || []).forEach(t => { if(t._id) teamById[t._id] = t; });
+    const riderByBib = {};
+    riders.forEach(item => {
+      if(!('bib' in item)) return;
+      const teamId = (item.$team || '').includes(':') ? item.$team.split(':')[1] : item.$team;
+      const team = teamById[teamId];
+      riderByBib[item.bib] = { name: `${item.firstname || ''} ${item.lastname || ''}`.trim(), team: team ? team.name : '' };
+    });
+    const roster = { riderByBib };
+    sessionStorage.setItem(cacheKey, JSON.stringify(roster));
+    return roster;
+  } catch(e){ return null; }
+}
+
+async function fetchTelemetry(){
+  try {
+    const r = await fetch(`${TDF_PROXY}/telemetryCompetitor-${TDF_YEAR}`);
+    if(!r.ok) return null;
+    const data = await r.json();
+    return Array.isArray(data) ? data[0] : data;
+  } catch(e){ return null; }
+}
+
+// Debug fixtures for local testing ahead of the Worker being deployed and
+// ahead of the next live stage day (the real feed's Riders[] is empty
+// between stages) — enabled via ?mockLive=1. Mirrors the inferred ASO
+// schema: three groups, jerseys split across them (polka up the road
+// with the breakaway, the other three back in the peloton).
+function mockTelemetry(stageLengthKm){
+  // Spacing within each cluster is an absolute km delta (well under the
+  // 0.15km clustering threshold) rather than a fraction of stage length —
+  // a fractional delta scales with stage length and can silently exceed
+  // the threshold on a long stage, splitting an intended group apart.
+  const breakawayKm = stageLengthKm * 0.320;
+  const pelotonKm = stageLengthKm * 0.345;
+  const groupettoKm = stageLengthKm * 0.365;
+  const riders = [
+    { Bib: 61, kmToFinish: +breakawayKm.toFixed(2), kph: 42, Gradient: -1.2, degC: 18, kphWind: 14 }, // O'Connor — polka dot
+    { Bib: 62, kmToFinish: +(breakawayKm+0.02).toFixed(2), kph: 41, Gradient: -1.2, degC: 18, kphWind: 14 },
+    { Bib: 63, kmToFinish: +(breakawayKm+0.04).toFixed(2), kph: 41, Gradient: -1.2, degC: 18, kphWind: 14 },
+    { Bib: 64, kmToFinish: +(breakawayKm+0.06).toFixed(2), kph: 42, Gradient: -1.2, degC: 18, kphWind: 14 },
+    { Bib: 1,  kmToFinish: +pelotonKm.toFixed(2), kph: 39, Gradient: -1.2, degC: 18, kphWind: 14 }, // Pogačar — yellow
+    { Bib: 11, kmToFinish: +(pelotonKm+0.02).toFixed(2), kph: 39, Gradient: -1.2, degC: 18, kphWind: 14 }, // Vingegaard
+    { Bib: 31, kmToFinish: +(pelotonKm+0.04).toFixed(2), kph: 38, Gradient: -1.2, degC: 18, kphWind: 14 }, // Evenepoel — white
+    { Bib: 91, kmToFinish: +(pelotonKm+0.06).toFixed(2), kph: 39, Gradient: -1.2, degC: 18, kphWind: 14 }, // Girmay — green
+  ];
+  for(let i = 0; i < 114; i++) riders.push({ Bib: 100+i, kmToFinish: +(pelotonKm+0.08+i*0.005).toFixed(2), kph: 38, Gradient: -1.2, degC: 18, kphWind: 14 });
+  for(let i = 0; i < 22; i++) riders.push({ Bib: 300+i, kmToFinish: +(groupettoKm+i*0.01).toFixed(2), kph: 34, Gradient: -1.2, degC: 18, kphWind: 14 });
+  return { RaceStatus: true, YGPW: [1, 91, 61, 31], Riders: riders }; // yellow, green, polka, white
+}
+function mockRoster(){
+  const names = {
+    1: ["Pogačar", 'UAE Team Emirates XRG'], 11: ['Vingegaard', 'Team Visma | Lease a Bike'],
+    31: ['Evenepoel', 'Soudal Quick-Step'], 91: ['Girmay', 'Intermarché'], 61: ["O'Connor", 'Jayco AlUla'],
+  };
+  const riderByBib = {};
+  Object.keys(names).forEach(bib => { riderByBib[bib] = { name: names[bib][0], team: names[bib][1] }; });
+  return { riderByBib };
+}
+
+// Sort by distance-to-finish and cluster riders within 0.15km of their
+// neighbor into the same group — ASO's feed gives relative road position,
+// not lat/lon, so this is how "who's riding with whom" is derived.
+function clusterGroups(riders){
+  const sorted = [...riders].sort((a,b) => a.kmToFinish - b.kmToFinish);
+  const groups = [];
+  sorted.forEach(r => {
+    const last = groups[groups.length - 1];
+    if(last && Math.abs(r.kmToFinish - last.riders[last.riders.length-1].kmToFinish) < 0.15){
+      last.riders.push(r);
+    } else {
+      groups.push({ riders: [r] });
+    }
+  });
+  // Already front-to-back (ascending kmToFinish) since it was built by
+  // walking the sorted array in order.
+  return groups.map(g => ({
+    riders: g.riders,
+    kmToFinish: Math.min(...g.riders.map(r => r.kmToFinish)),
+    avgKph: g.riders.reduce((s,r) => s + (r.kph||0), 0) / g.riders.length,
+  }));
+}
+
+// Guarantees jersey holders are never hidden behind the "+N" truncation —
+// pulled into the visible slice ahead of it if they wouldn't otherwise
+// make the cut, rather than a fixed visible-name count regardless of who
+// is actually riding in that group.
+function groupNamesHtml(group, roster, ygpwByBib){
+  const maxVisible = 3;
+  const named = group.riders.map(r => {
+    const info = (roster && roster.riderByBib[r.Bib]) || { name: `#${r.Bib}` };
+    return { name: info.name || `#${r.Bib}`, jersey: ygpwByBib.get(r.Bib) };
+  });
+  const jerseyRiders = named.filter(r => r.jersey);
+  const others = named.filter(r => !r.jersey);
+  const visible = jerseyRiders.concat(others).slice(0, Math.max(maxVisible, jerseyRiders.length));
+  const hiddenCount = named.length - visible.length;
+  const parts = visible.map(r => r.jersey ? `${r.name}<span class="jdot ${r.jersey}"></span>` : r.name);
+  return parts.join(', ') + (hiddenCount > 0 ? ` +${hiddenCount}` : '');
+}
+
+// Groups occupy the middle 70% of the bar (15% padding reserved on each
+// side) rather than a fixed km buffer, so tight bunches get tight padding
+// and strung-out groups get proportionally more room.
+function computeZoomWindow(groups, stageLengthKm){
+  const elapsed = groups.map(g => stageLengthKm - g.kmToFinish);
+  const minE = Math.min(...elapsed), maxE = Math.max(...elapsed);
+  const span = Math.max(maxE - minE, 0.3); // floor so one tight cluster still gets a visible window
+  const pad = (span / 0.7) * 0.15;
+  return { windowMin: Math.max(0, minE - pad), windowMax: Math.min(stageLengthKm, maxE + pad) };
+}
+
+function renderLiveTrackerHtml(stage, telemetry, roster){
+  const stageLengthKm = stage.distanceKm;
+  const groups = clusterGroups(telemetry.Riders); // already front-to-back
+  if(!groups.length) return null;
+
+  const jerseyClasses = ['dot-yellow','dot-green','dot-red','dot-white'];
+  const ygpwByBib = new Map();
+  (telemetry.YGPW || []).forEach((bib, i) => { if(bib != null && jerseyClasses[i]) ygpwByBib.set(bib, jerseyClasses[i]); });
+
+  const { windowMin, windowMax } = computeZoomWindow(groups, stageLengthKm);
+  const windowSpan = Math.max(windowMax - windowMin, 0.01);
+  const pctOfElapsed = elapsedKm => ((elapsedKm - windowMin) / windowSpan) * 100;
+
+  const mainIdx = groups.reduce((best, g, i) => g.riders.length > groups[best].riders.length ? i : best, 0);
+  const mainKm = groups[mainIdx].kmToFinish;
+  const leadKm = groups[0].kmToFinish;
+
+  const dotsHtml = groups.map(g => {
+    const left = pctOfElapsed(stageLengthKm - g.kmToFinish).toFixed(2);
+    const isMain = g === groups[mainIdx];
+    const kind = isMain ? 'peloton' : (g.kmToFinish < mainKm ? 'breakaway' : 'groupetto');
+    const size = Math.max(5, Math.min(9, 4 + Math.sqrt(g.riders.length)));
+    const jerseysHere = g.riders.map(r => ygpwByBib.get(r.Bib)).filter(Boolean);
+    const ticks = jerseysHere.map((cls, ti) => {
+      const tickLeft = (parseFloat(left) + (ti - (jerseysHere.length-1)/2) * 1.6).toFixed(2);
+      return `<span class="live-jtick ${cls}" style="left:${tickLeft}%;margin-left:-3.5px"></span>`;
+    }).join('');
+    return `${ticks}<span class="live-group-dot ${kind}" style="left:${left}%;width:${size}px;height:${size}px;margin-left:${(-size/2).toFixed(1)}px"></span>`;
+  }).join('');
+
+  const rowsHtml = groups.map(g => {
+    const isMain = g === groups[mainIdx];
+    const kind = isMain ? 'peloton' : (g.kmToFinish < mainKm ? 'breakaway' : 'groupetto');
+    let gapLabel, gapClass = '';
+    if(isMain){
+      gapLabel = 'Peloton';
+    } else {
+      const gapKm = Math.abs(g.kmToFinish - mainKm);
+      const gapSec = g.avgKph > 0 ? Math.round(gapKm / g.avgKph * 3600) : 0;
+      const mm = Math.floor(gapSec/60), ss = String(gapSec%60).padStart(2,'0');
+      gapLabel = `≈${kind === 'breakaway' ? '-' : '+'}${mm}:${ss}`;
+      if(kind === 'breakaway') gapClass = 'lead';
+    }
+    return `<div class="live-group-row ${kind}">
+      <div class="live-group-meta"><div class="live-group-gap ${gapClass}">${gapLabel}</div><div class="live-group-count">${g.riders.length} riders</div></div>
+      <div class="live-group-names">${groupNamesHtml(g, roster, ygpwByBib)}</div>
+      <div class="live-group-speed">${g.avgKph.toFixed(1)}<small>km/h</small></div>
+    </div>`;
+  }).join('');
+
+  const doneWidth = pctOfElapsed(stageLengthKm - leadKm).toFixed(2);
+  const windowLeftPct = ((windowMin / stageLengthKm) * 100).toFixed(2);
+  const windowWidthPct = (((windowMax - windowMin) / stageLengthKm) * 100).toFixed(2);
+  const startLabel = windowMin < 1 ? 'Start' : `${windowMin.toFixed(0)} km from start`;
+  const finishLabel = (stageLengthKm - windowMax) < 1 ? 'Finish' : `${(stageLengthKm - windowMax).toFixed(0)} km from finish`;
+  const w = telemetry.Riders[0] || {};
+
+  return `
+    <div class="live-km-row"><div class="cd-num">${leadKm.toFixed(1)}</div><div class="cd-label">km to go</div></div>
+    <div class="live-track-wrap">
+      <div class="live-minimap"><div class="live-minimap-window" style="left:${windowLeftPct}%;width:${windowWidthPct}%"></div></div>
+      <div class="live-track"><span class="live-track-done" style="width:${doneWidth}%"></span>${dotsHtml}</div>
+      <div class="live-track-labels"><span>${startLabel}</span><span>${(windowMax-windowMin).toFixed(1)} km shown</span><span>${finishLabel}</span></div>
+    </div>
+    <div class="live-chips">
+      <div class="live-chip">Gradient <b>${w.Gradient != null ? w.Gradient.toFixed(1)+'%' : '—'}</b></div>
+      <div class="live-chip">${w.degC != null ? w.degC.toFixed(0)+'°C' : '—'}, wind <b>${w.kphWind != null ? w.kphWind.toFixed(0)+' kph' : '—'}</b></div>
+      <div class="live-chip">${groups.length} group${groups.length===1?'':'s'} on the road</div>
+    </div>
+    <div class="live-groups">${rowsHtml}</div>
+  `;
+}
+
+// Fast poll loop for the tracker card only — independent of the page's
+// 60s full re-render, which would be both too slow for "live" and would
+// fight the countdown-ticker teardown/rebuild happening on that cycle.
+let liveTrackerTimer = null;
+function stopLiveTrackerPolling(){
+  if(liveTrackerTimer){ clearInterval(liveTrackerTimer); liveTrackerTimer = null; }
+}
+function startLiveTrackerPolling(stage, gen, mockLive){
+  stopLiveTrackerPolling();
+  liveTrackerTimer = setInterval(async () => {
+    if(gen !== renderGen){ stopLiveTrackerPolling(); return; }
+    if(document.visibilityState !== 'visible') return; // don't hammer the Worker from a backgrounded tab
+    const slot = document.getElementById('live-tracker-slot');
+    if(!slot){ stopLiveTrackerPolling(); return; }
+    let telemetry, roster;
+    if(mockLive){ telemetry = mockTelemetry(stage.distanceKm); roster = mockRoster(); }
+    else { telemetry = await fetchTelemetry(); roster = telemetry && telemetry.RaceStatus ? await fetchRoster() : null; }
+    if(!telemetry || !telemetry.RaceStatus || !telemetry.Riders || !telemetry.Riders.length){
+      stopLiveTrackerPolling();
+      renderDashboard(); // stage likely concluded or the feed dropped — pick up the new phase now, not on the next 60s tick
+      return;
+    }
+    slot.innerHTML = renderLiveTrackerHtml(stage, telemetry, roster);
+  }, 10000);
+}
+
 async function renderDashboard(){
   renderGen++;
   const myGen = renderGen;
+  stopLiveTrackerPolling();
   const scrollY = window.scrollY;
+
+  // Local-testing hook: ?mockLive=1 forces the live-tracker state on with
+  // fixture data, since the real feed is empty except during an actual
+  // live stage. See mockTelemetry()/mockRoster() above.
+  const mockLive = new URLSearchParams(location.search).has('mockLive');
 
   const route = await tryFetch('data/route.json');
   const standings = await tryFetch('data/standings.json');
@@ -269,7 +541,7 @@ async function renderDashboard(){
 
   const todayStage = stages.find(s => s.date === todayStr);
   const isRestToday = !!(todayStage && todayStage.type === 'rest');
-  const realTodayStage = (todayStage && !isRestToday) ? todayStage : null;
+  let realTodayStage = (todayStage && !isRestToday) ? todayStage : null;
 
   // A stage's finish classification table is empty on letour.fr while the
   // race is still on the road and jumps straight to the full field once
@@ -277,14 +549,31 @@ async function renderDashboard(){
   // for "this stage has actually concluded", unlike just checking the date.
   let todayResult = null;
   if(realTodayStage) todayResult = await tryFetch(`data/stage-results/${realTodayStage.n}.json`);
-  const todayConcluded = !!(todayResult && todayResult.result && todayResult.result.length >= 20);
+  let todayConcluded = !!(todayResult && todayResult.result && todayResult.result.length >= 20);
 
   let todayStartDt = null;
   if(realTodayStage){
     const t = (stageTimes && stageTimes[String(realTodayStage.n)]) || '13:00';
     todayStartDt = new Date(`${realTodayStage.date}T${t}:00+02:00`);
   }
-  const todayLive = !!(realTodayStage && todayStartDt && now >= todayStartDt && !todayConcluded);
+  if(mockLive){
+    realTodayStage = stages.find(s => s.n === 11) || stages.find(s => s.n > 0 && s.type !== 'rest');
+    todayStartDt = new Date(now.getTime() - 90*60000);
+    todayConcluded = false;
+  }
+  const todayLive = mockLive || !!(realTodayStage && todayStartDt && now >= todayStartDt && !todayConcluded);
+
+  // Real ASO telemetry only exists while a stage is physically rolling —
+  // todayLive above is a clock guess, this is the authoritative check.
+  let liveTelemetry = null, liveRoster = null;
+  if(todayLive){
+    if(mockLive){ liveTelemetry = mockTelemetry(realTodayStage.distanceKm); liveRoster = mockRoster(); }
+    else {
+      liveTelemetry = await fetchTelemetry();
+      if(liveTelemetry && liveTelemetry.RaceStatus && liveTelemetry.Riders && liveTelemetry.Riders.length) liveRoster = await fetchRoster();
+    }
+  }
+  const liveTrackerActive = !!(todayLive && liveTelemetry && liveTelemetry.RaceStatus && liveTelemetry.Riders && liveTelemetry.Riders.length);
   // Covers both "hasn't started yet" and "on the road right now" — in
   // both cases today's own stage stays the focus rather than jumping
   // ahead to tomorrow's countdown.
@@ -313,7 +602,11 @@ async function renderDashboard(){
       <div class="live-badge"><span class="live-dot"></span>Live</div>
       <div class="countdown-title">${realTodayStage.start} → ${realTodayStage.finish}</div>
       <div class="countdown-subtitle">${realTodayStage.distanceKm} km · ${TERRAIN_LABEL[realTodayStage.type]}</div>
-      <div class="live-status">Stage ${realTodayStage.n} is underway — on the road for ${elapsedLabel(todayStartDt, now)}</div>
+      <div id="live-tracker-slot">
+        ${liveTrackerActive
+          ? renderLiveTrackerHtml(realTodayStage, liveTelemetry, liveRoster)
+          : `<div class="live-status">Stage ${realTodayStage.n} is underway — on the road for ${elapsedLabel(todayStartDt, now)}</div>`}
+      </div>
       ${dramaValid ? `<div class="drama-blurb"><div class="drama-label">What to watch for</div>${drama.text}</div>` : ''}
     </div>`;
   } else if(countdownTarget){
@@ -392,6 +685,7 @@ async function renderDashboard(){
   app.innerHTML = html;
   window.scrollTo(0, scrollY);
   if(!todayLive && countdownTarget) tickCountdown(countdownTarget.startDt, myGen);
+  if(liveTrackerActive) startLiveTrackerPolling(realTodayStage, myGen, mockLive);
 }
 
 renderDashboard();
