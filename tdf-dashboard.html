@@ -97,18 +97,23 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .live-chip{font-size:11px;color:#888;background:#1a1a1a;border:1px solid #262626;border-radius:20px;padding:4px 10px}
 .live-chip b{color:#eee;font-variant-numeric:tabular-nums}
 .live-groups{margin-top:4px}
-.live-group-row{display:flex;align-items:center;gap:12px;padding:10px 0 10px 10px;border-top:1px solid #1e1e1e;border-radius:6px;transition:background-color .15s ease;cursor:pointer}
+.live-group-row{padding:10px 0 10px 10px;border-top:1px solid #1e1e1e;border-radius:6px;transition:background-color .15s ease;cursor:pointer}
 .live-group-row.hover-active{background-color:rgba(255,255,255,.05)}
 .live-group-row.breakaway{border-left:3px solid #f5c518}
 .live-group-row.peloton{border-left:3px solid #666}
 .live-group-row.groupetto{border-left:3px solid #333}
-.live-group-meta{width:74px;flex-shrink:0}
+.live-group-row-main{display:flex;align-items:center;gap:12px}
+.live-group-bubble{flex-shrink:0;border-radius:50%;background:#242424;border:1px solid #333;color:#ccc;font-weight:800;font-variant-numeric:tabular-nums;display:flex;align-items:center;justify-content:center}
+.live-group-meta{width:56px;flex-shrink:0}
 .live-group-gap{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
 .live-group-gap.lead{color:#f5c518}
-.live-group-count{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
 .live-group-names{flex:1;min-width:0;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .live-group-speed{font-size:12px;color:#888;font-variant-numeric:tabular-nums;text-align:right;flex-shrink:0}
 .live-group-speed small{display:block;font-size:9px;text-transform:uppercase;color:#555;margin-top:2px}
+.live-group-chevron{color:#555;font-size:14px;flex-shrink:0;transition:transform .15s ease}
+.live-group-row.expanded .live-group-chevron{transform:rotate(180deg)}
+.live-group-full{display:none;font-size:12px;color:#aaa;line-height:1.7;margin-top:10px;padding:10px 0 0 56px;border-top:1px solid #1e1e1e}
+.live-group-row.expanded .live-group-full{display:block}
 .jdot{width:7px;height:7px;border-radius:50%;display:inline-block;margin:0 5px 0 2px;vertical-align:middle}
 
 /* Terrain badges */
@@ -178,7 +183,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.8</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.9</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -336,18 +341,21 @@ async function fetchTelemetry(){
 // schema: three groups, jerseys split across them (polka up the road
 // with the breakaway, the other three back in the peloton).
 function mockTelemetry(stageLengthKm){
-  // Spacing within each cluster is an absolute km delta (well under the
-  // 0.15km clustering threshold) rather than a fraction of stage length —
-  // a fractional delta scales with stage length and can silently exceed
-  // the threshold on a long stage, splitting an intended group apart.
-  const breakawayKm = stageLengthKm * 0.320;
+  // Deliberately asymmetric so the layout can be checked against an
+  // uneven race: the breakaway is barely off the front (0.5km) while the
+  // groupetto has been dropped a long way back (12km) — spacing within
+  // each cluster is still an absolute km delta well under the 0.15km
+  // clustering threshold, not a fraction of stage length (a fractional
+  // delta scales with stage length and can silently exceed the
+  // threshold on a long stage, splitting an intended group apart).
   const pelotonKm = stageLengthKm * 0.345;
-  const groupettoKm = stageLengthKm * 0.365;
+  const breakawayKm = pelotonKm - 0.5;
+  const groupettoKm = pelotonKm + 12;
   const riders = [
     { Bib: 61, kmToFinish: +breakawayKm.toFixed(2), kph: 42, Gradient: -1.2, degC: 18, kphWind: 14 }, // O'Connor — polka dot
-    { Bib: 62, kmToFinish: +(breakawayKm+0.02).toFixed(2), kph: 41, Gradient: -1.2, degC: 18, kphWind: 14 },
-    { Bib: 63, kmToFinish: +(breakawayKm+0.04).toFixed(2), kph: 41, Gradient: -1.2, degC: 18, kphWind: 14 },
-    { Bib: 64, kmToFinish: +(breakawayKm+0.06).toFixed(2), kph: 42, Gradient: -1.2, degC: 18, kphWind: 14 },
+    { Bib: 62, kmToFinish: +(breakawayKm+0.02).toFixed(2), kph: 41, Gradient: -1.2, degC: 18, kphWind: 14 }, // Pedersen
+    { Bib: 63, kmToFinish: +(breakawayKm+0.04).toFixed(2), kph: 41, Gradient: -1.2, degC: 18, kphWind: 14 }, // Van Baarle
+    { Bib: 64, kmToFinish: +(breakawayKm+0.06).toFixed(2), kph: 42, Gradient: -1.2, degC: 18, kphWind: 14 }, // Kwiatkowski
     { Bib: 1,  kmToFinish: +pelotonKm.toFixed(2), kph: 39, Gradient: -1.2, degC: 18, kphWind: 14 }, // Pogačar — yellow
     { Bib: 11, kmToFinish: +(pelotonKm+0.02).toFixed(2), kph: 39, Gradient: -1.2, degC: 18, kphWind: 14 }, // Vingegaard
     { Bib: 31, kmToFinish: +(pelotonKm+0.04).toFixed(2), kph: 38, Gradient: -1.2, degC: 18, kphWind: 14 }, // Evenepoel — white
@@ -358,10 +366,16 @@ function mockTelemetry(stageLengthKm){
   return { RaceStatus: true, YGPW: [1, 91, 61, 31], Riders: riders }; // yellow, green, polka, white
 }
 function mockRoster(){
+  // Every rider that could plausibly land in a group's visible slice
+  // (or its full expanded list) gets a real name here — an unmapped
+  // "#62" reads as broken, even in a debug fixture.
   const names = {
     1: ["Pogačar", 'UAE Team Emirates XRG'], 11: ['Vingegaard', 'Team Visma | Lease a Bike'],
-    31: ['Evenepoel', 'Soudal Quick-Step'], 91: ['Girmay', 'Intermarché'], 61: ["O'Connor", 'Jayco AlUla'],
+    31: ['Evenepoel', 'Soudal Quick-Step'], 91: ['Girmay', 'Intermarché'],
+    61: ["O'Connor", 'Jayco AlUla'], 62: ['Pedersen', 'Lidl-Trek'], 63: ['Van Baarle', 'Team Visma | Lease a Bike'], 64: ['Kwiatkowski', 'Ineos Grenadiers'],
   };
+  for(let i = 0; i < 114; i++) names[100+i] = [`Rider ${i+1}`, 'Peloton'];
+  for(let i = 0; i < 22; i++) names[300+i] = [`Rider ${i+1}`, 'Groupetto'];
   const riderByBib = {};
   Object.keys(names).forEach(bib => { riderByBib[bib] = { name: names[bib][0], team: names[bib][1] }; });
   return { riderByBib };
@@ -394,18 +408,27 @@ function clusterGroups(riders){
 // pulled into the visible slice ahead of it if they wouldn't otherwise
 // make the cut, rather than a fixed visible-name count regardless of who
 // is actually riding in that group.
-function groupNamesHtml(group, roster, ygpwByBib){
-  const maxVisible = 3;
-  const named = group.riders.map(r => {
+function namedRiders(group, roster, ygpwByBib){
+  return group.riders.map(r => {
     const info = (roster && roster.riderByBib[r.Bib]) || { name: `#${r.Bib}` };
     return { name: info.name || `#${r.Bib}`, jersey: ygpwByBib.get(r.Bib) };
   });
+}
+
+function groupNamesHtml(named){
+  const maxVisible = 3;
   const jerseyRiders = named.filter(r => r.jersey);
   const others = named.filter(r => !r.jersey);
   const visible = jerseyRiders.concat(others).slice(0, Math.max(maxVisible, jerseyRiders.length));
   const hiddenCount = named.length - visible.length;
   const parts = visible.map(r => r.jersey ? `${r.name}<span class="jdot ${r.jersey}"></span>` : r.name);
   return parts.join(', ') + (hiddenCount > 0 ? ` +${hiddenCount}` : '');
+}
+
+// Full roster for a group's expanded view — every rider, not just the
+// truncated visible slice.
+function groupFullNamesHtml(named){
+  return named.map(r => r.jersey ? `${r.name}<span class="jdot ${r.jersey}"></span>` : r.name).join(', ');
 }
 
 // Groups occupy the middle 70% of the bar (15% padding reserved on each
@@ -465,10 +488,24 @@ function renderLiveTrackerHtml(stage, telemetry, roster){
       gapLabel = `≈${kind === 'breakaway' ? '-' : '+'}${mm}:${ss}`;
       if(kind === 'breakaway') gapClass = 'lead';
     }
+    // Bubble area scales with rider count (not diameter directly — area
+    // is what a viewer actually compares) and is capped so a 118-rider
+    // peloton doesn't dwarf the row. Deliberately monochrome: kind-based
+    // color (gold/green/red/white) is already spoken for by the jersey
+    // dots, so the bubble stays neutral to avoid a second, competing use
+    // of the same colors for a different meaning.
+    const bubbleSize = Math.round(Math.min(44, 22 + Math.sqrt(g.riders.length) * 3.6));
+    const bubbleFont = Math.max(10, Math.round(bubbleSize * 0.34));
+    const named = namedRiders(g, roster, ygpwByBib);
     return `<div class="live-group-row ${kind}" data-gidx="${i}">
-      <div class="live-group-meta"><div class="live-group-gap ${gapClass}">${gapLabel}</div><div class="live-group-count">${g.riders.length} riders</div></div>
-      <div class="live-group-names">${groupNamesHtml(g, roster, ygpwByBib)}</div>
-      <div class="live-group-speed">${g.avgKph.toFixed(1)}<small>km/h</small></div>
+      <div class="live-group-row-main">
+        <div class="live-group-bubble" style="width:${bubbleSize}px;height:${bubbleSize}px;font-size:${bubbleFont}px">${g.riders.length}</div>
+        <div class="live-group-meta"><div class="live-group-gap ${gapClass}">${gapLabel}</div></div>
+        <div class="live-group-names">${groupNamesHtml(named)}</div>
+        <div class="live-group-speed">${g.avgKph.toFixed(1)}<small>km/h</small></div>
+        <span class="live-group-chevron">⌄</span>
+      </div>
+      <div class="live-group-full">${groupFullNamesHtml(named)}</div>
     </div>`;
   }).join('');
 
@@ -707,6 +744,14 @@ document.addEventListener('mouseover', e => {
 document.addEventListener('mouseout', e => {
   const el = e.target.closest('.live-group-row, .live-group-marker');
   if(el) setLiveGroupHover(el.dataset.gidx, false);
+});
+
+// Clicking a group's row expands it to show every rider, not just the
+// truncated visible slice — same delegation approach as the hover link,
+// so it survives every DOM replacement without re-binding.
+document.addEventListener('click', e => {
+  const row = e.target.closest('.live-group-row');
+  if(row) row.classList.toggle('expanded');
 });
 
 renderDashboard();
