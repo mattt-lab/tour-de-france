@@ -1,6 +1,107 @@
 {
   "stage": 14,
-  "result": [],
+  "result": [
+    {
+      "rank": "1",
+      "rider": "T. POGACAR",
+      "rider_no": "1",
+      "team": "UAE TEAM EMIRATES XRG",
+      "times": "04h 00' 07''",
+      "gap": "-",
+      "b": "B : 10''",
+      "p": "-"
+    },
+    {
+      "rank": "2",
+      "rider": "I. DEL TORO",
+      "rider_no": "2",
+      "team": "UAE TEAM EMIRATES XRG",
+      "times": "04h 00' 45''",
+      "gap": "+ 00h 00' 38''",
+      "b": "B : 6''",
+      "p": "-"
+    },
+    {
+      "rank": "3",
+      "rider": "P. SEIXAS",
+      "rider_no": "51",
+      "team": "DECATHLON CMA CGM TEAM",
+      "times": "04h 00' 45''",
+      "gap": "+ 00h 00' 38''",
+      "b": "B : 4''",
+      "p": "-"
+    },
+    {
+      "rank": "4",
+      "rider": "J. VINGEGAARD",
+      "rider_no": "11",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "times": "04h 00' 51''",
+      "gap": "+ 00h 00' 44''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "5",
+      "rider": "R. EVENEPOEL",
+      "rider_no": "21",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "times": "04h 00' 55''",
+      "gap": "+ 00h 00' 48''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "6",
+      "rider": "J. AYUSO",
+      "rider_no": "31",
+      "team": "LIDL-TREK",
+      "times": "04h 00' 57''",
+      "gap": "+ 00h 00' 50''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "7",
+      "rider": "F. LIPOWITZ",
+      "rider_no": "25",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "times": "04h 00' 57''",
+      "gap": "+ 00h 00' 50''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "8",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "times": "04h 01' 25''",
+      "gap": "+ 00h 01' 18''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "9",
+      "rider": "T. JOHANNESSEN",
+      "rider_no": "121",
+      "team": "UNO-X MOBILITY",
+      "times": "04h 01' 47''",
+      "gap": "+ 00h 01' 40''",
+      "b": "-",
+      "p": "-"
+    },
+    {
+      "rank": "10",
+      "rider": "M. SKJELMOSE",
+      "rider_no": "35",
+      "team": "LIDL-TREK",
+      "times": "04h 01' 47''",
+      "gap": "+ 00h 01' 40''",
+      "b": "-",
+      "p": "-"
+    }
+  ],
   "points": [
     {
       "rank": "1",
@@ -235,9 +336,58 @@
       "rider_no": "125",
       "team": "UNO-X MOBILITY",
       "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "T. POGACAR",
+      "rider_no": "1",
+      "team": "UAE TEAM EMIRATES XRG",
+      "points": "10 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "J. VINGEGAARD",
+      "rider_no": "11",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "8 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "P. SEIXAS",
+      "rider_no": "51",
+      "team": "DECATHLON CMA CGM TEAM",
+      "points": "6 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "I. DEL TORO",
+      "rider_no": "2",
+      "team": "UAE TEAM EMIRATES XRG",
+      "points": "4 PTS"
+    },
+    {
+      "rank": "5",
+      "rider": "R. EVENEPOEL",
+      "rider_no": "21",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "6",
+      "rider": "J. AYUSO",
+      "rider_no": "31",
+      "team": "LIDL-TREK",
+      "points": "1 PT"
     }
   ],
   "youth": [],
   "teams": [],
-  "combativity": []
+  "combativity": [
+    {
+      "rank": "1",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST"
+    }
+  ]
 }
