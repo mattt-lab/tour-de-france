@@ -84,17 +84,21 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 .live-minimap-window{position:absolute;top:-1px;bottom:-1px;border:1px solid #f5c518;border-radius:3px;opacity:.6;transition:left .8s ease,width .8s ease}
 .live-track{position:relative;height:26px;border-top:2px solid #262626;margin-top:8px}
 .live-track-done{position:absolute;top:-2px;left:0;height:2px;background:#444;transition:width 1s ease}
-.live-group-dot{position:absolute;top:-6px;border-radius:50%;box-shadow:0 0 0 2px #151515;transition:left 1s ease}
+.live-group-marker{position:absolute;top:-24px;width:22px;height:28px;margin-left:-11px;transition:left 1s ease;cursor:pointer}
+.live-group-dot{position:absolute;top:22px;left:50%;border-radius:50%;box-shadow:0 0 0 2px #151515;transition:transform .15s ease}
 .live-group-dot.breakaway{background:#f5c518}
 .live-group-dot.peloton{background:#999}
 .live-group-dot.groupetto{background:#555}
-.live-jtick{position:absolute;top:-20px;width:7px;height:7px;border-radius:50%;box-shadow:0 0 0 1px #151515;transition:left 1s ease}
+.live-jtick{position:absolute;top:0;left:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;box-shadow:0 0 0 1px #151515}
+.live-group-marker.hover-active .live-group-dot{transform:scale(1.4)}
+.live-group-marker.hover-active .live-jtick{transform:scale(1.3)}
 .live-track-labels{display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:6px}
 .live-chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .live-chip{font-size:11px;color:#888;background:#1a1a1a;border:1px solid #262626;border-radius:20px;padding:4px 10px}
 .live-chip b{color:#eee;font-variant-numeric:tabular-nums}
 .live-groups{margin-top:4px}
-.live-group-row{display:flex;align-items:center;gap:12px;padding:10px 0 10px 10px;border-top:1px solid #1e1e1e}
+.live-group-row{display:flex;align-items:center;gap:12px;padding:10px 0 10px 10px;border-top:1px solid #1e1e1e;border-radius:6px;transition:background-color .15s ease;cursor:pointer}
+.live-group-row.hover-active{background-color:rgba(255,255,255,.05)}
 .live-group-row.breakaway{border-left:3px solid #f5c518}
 .live-group-row.peloton{border-left:3px solid #666}
 .live-group-row.groupetto{border-left:3px solid #333}
@@ -432,20 +436,23 @@ function renderLiveTrackerHtml(stage, telemetry, roster){
   const mainKm = groups[mainIdx].kmToFinish;
   const leadKm = groups[0].kmToFinish;
 
-  const dotsHtml = groups.map(g => {
+  const dotsHtml = groups.map((g, i) => {
     const left = pctOfElapsed(stageLengthKm - g.kmToFinish).toFixed(2);
     const isMain = g === groups[mainIdx];
     const kind = isMain ? 'peloton' : (g.kmToFinish < mainKm ? 'breakaway' : 'groupetto');
     const size = Math.max(5, Math.min(9, 4 + Math.sqrt(g.riders.length)));
     const jerseysHere = g.riders.map(r => ygpwByBib.get(r.Bib)).filter(Boolean);
     const ticks = jerseysHere.map((cls, ti) => {
-      const tickLeft = (parseFloat(left) + (ti - (jerseysHere.length-1)/2) * 1.6).toFixed(2);
-      return `<span class="live-jtick ${cls}" style="left:${tickLeft}%;margin-left:-3.5px"></span>`;
+      const tickLeft = ((ti - (jerseysHere.length-1)/2) * 9).toFixed(1);
+      return `<span class="live-jtick ${cls}" style="margin-left:${tickLeft}px"></span>`;
     }).join('');
-    return `${ticks}<span class="live-group-dot ${kind}" style="left:${left}%;width:${size}px;height:${size}px;margin-left:${(-size/2).toFixed(1)}px"></span>`;
+    return `<div class="live-group-marker" data-gidx="${i}" style="left:${left}%">
+      ${ticks}
+      <span class="live-group-dot ${kind}" style="width:${size}px;height:${size}px;margin-left:${(-size/2).toFixed(1)}px"></span>
+    </div>`;
   }).join('');
 
-  const rowsHtml = groups.map(g => {
+  const rowsHtml = groups.map((g, i) => {
     const isMain = g === groups[mainIdx];
     const kind = isMain ? 'peloton' : (g.kmToFinish < mainKm ? 'breakaway' : 'groupetto');
     let gapLabel, gapClass = '';
@@ -458,7 +465,7 @@ function renderLiveTrackerHtml(stage, telemetry, roster){
       gapLabel = `≈${kind === 'breakaway' ? '-' : '+'}${mm}:${ss}`;
       if(kind === 'breakaway') gapClass = 'lead';
     }
-    return `<div class="live-group-row ${kind}">
+    return `<div class="live-group-row ${kind}" data-gidx="${i}">
       <div class="live-group-meta"><div class="live-group-gap ${gapClass}">${gapLabel}</div><div class="live-group-count">${g.riders.length} riders</div></div>
       <div class="live-group-names">${groupNamesHtml(g, roster, ygpwByBib)}</div>
       <div class="live-group-speed">${g.avgKph.toFixed(1)}<small>km/h</small></div>
@@ -687,6 +694,24 @@ async function renderDashboard(){
   if(!todayLive && countdownTarget) tickCountdown(countdownTarget.startDt, myGen);
   if(liveTrackerActive) startLiveTrackerPolling(realTodayStage, myGen, mockLive);
 }
+
+// Hovering a group's row highlights its marker on the bar and vice versa.
+// Delegated on document (rather than bound to the tracker's own elements)
+// so it keeps working across every innerHTML replacement — the 60s full
+// re-render and the 10s tracker-only patch both swap out the actual
+// nodes, but never need to re-attach this listener.
+function setLiveGroupHover(gidx, on){
+  document.querySelectorAll(`.live-group-row[data-gidx="${gidx}"], .live-group-marker[data-gidx="${gidx}"]`)
+    .forEach(el => el.classList.toggle('hover-active', on));
+}
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest('.live-group-row, .live-group-marker');
+  if(el) setLiveGroupHover(el.dataset.gidx, true);
+});
+document.addEventListener('mouseout', e => {
+  const el = e.target.closest('.live-group-row, .live-group-marker');
+  if(el) setLiveGroupHover(el.dataset.gidx, false);
+});
 
 renderDashboard();
 setInterval(renderDashboard, 60000); // re-fetch + re-render every 60s
