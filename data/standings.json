@@ -1,7 +1,7 @@
 {
   "stage": 14,
   "_meta": {
-    "updated": "2026-07-19T14:15:57.312125+00:00"
+    "updated": "2026-07-19T15:27:36.678678+00:00"
   },
   "gc": [
     {
@@ -2612,10 +2612,10 @@
     },
     {
       "rank": "4",
-      "rider": "J. VINGEGAARD",
-      "rider_no": "11",
-      "team": "TEAM VISMA | LEASE A BIKE",
-      "points": "35 PTS",
+      "rider": "T. PIDCOCK",
+      "rider_no": "171",
+      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
+      "points": "28 PTS",
       "p": "-"
     },
     {
@@ -2628,14 +2628,6 @@
     },
     {
       "rank": "6",
-      "rider": "T. PIDCOCK",
-      "rider_no": "171",
-      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
-      "points": "18 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "7",
       "rider": "I. DEL TORO",
       "rider_no": "2",
       "team": "UAE TEAM EMIRATES XRG",
@@ -2643,7 +2635,7 @@
       "p": "-"
     },
     {
-      "rank": "8",
+      "rank": "7",
       "rider": "N. PRODHOMME",
       "rider_no": "57",
       "team": "DECATHLON CMA CGM TEAM",
@@ -2651,7 +2643,7 @@
       "p": "-"
     },
     {
-      "rank": "9",
+      "rank": "8",
       "rider": "A. BAUDIN",
       "rider_no": "43",
       "team": "EF EDUCATION - EASYPOST",
@@ -2659,7 +2651,7 @@
       "p": "-"
     },
     {
-      "rank": "10",
+      "rank": "9",
       "rider": "L. MARTINEZ",
       "rider_no": "71",
       "team": "BAHRAIN VICTORIOUS",
@@ -2667,11 +2659,19 @@
       "p": "-"
     },
     {
-      "rank": "11",
+      "rank": "10",
       "rider": "T. JOHANNESSEN",
       "rider_no": "121",
       "team": "UNO-X MOBILITY",
       "points": "16 PTS",
+      "p": "-"
+    },
+    {
+      "rank": "11",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "14 PTS",
       "p": "-"
     },
     {
@@ -2700,17 +2700,17 @@
     },
     {
       "rank": "15",
-      "rider": "M. SCHMID",
-      "rider_no": "118",
-      "team": "TEAM JAYCO ALULA",
+      "rider": "B. HEALY",
+      "rider_no": "44",
+      "team": "EF EDUCATION - EASYPOST",
       "points": "8 PTS",
       "p": "-"
     },
     {
       "rank": "16",
-      "rider": "B. HEALY",
-      "rider_no": "44",
-      "team": "EF EDUCATION - EASYPOST",
+      "rider": "M. SCHMID",
+      "rider_no": "118",
+      "team": "TEAM JAYCO ALULA",
       "points": "8 PTS",
       "p": "-"
     },
@@ -2724,17 +2724,17 @@
     },
     {
       "rank": "18",
-      "rider": "B. MCNULTY",
-      "rider_no": "4",
-      "team": "UAE TEAM EMIRATES XRG",
-      "points": "6 PTS",
+      "rider": "E. RUBIO",
+      "rider_no": "148",
+      "team": "MOVISTAR TEAM",
+      "points": "7 PTS",
       "p": "-"
     },
     {
       "rank": "19",
-      "rider": "M. VAN GILS",
-      "rider_no": "28",
-      "team": "RED BULL - BORA - HANSGROHE",
+      "rider": "B. MCNULTY",
+      "rider_no": "4",
+      "team": "UAE TEAM EMIRATES XRG",
       "points": "6 PTS",
       "p": "-"
     },
@@ -2748,14 +2748,22 @@
     },
     {
       "rank": "21",
-      "rider": "M. FRIGO",
-      "rider_no": "134",
-      "team": "NSN CYCLING TEAM",
-      "points": "5 PTS",
+      "rider": "Y. VOISARD",
+      "rider_no": "198",
+      "team": "TUDOR PRO CYCLING TEAM",
+      "points": "6 PTS",
       "p": "-"
     },
     {
       "rank": "22",
+      "rider": "M. VAN GILS",
+      "rider_no": "28",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "points": "6 PTS",
+      "p": "-"
+    },
+    {
+      "rank": "23",
       "rider": "J. TRATNIK",
       "rider_no": "26",
       "team": "RED BULL - BORA - HANSGROHE",
@@ -2763,7 +2771,15 @@
       "p": "-"
     },
     {
-      "rank": "23",
+      "rank": "24",
+      "rider": "M. FRIGO",
+      "rider_no": "134",
+      "team": "NSN CYCLING TEAM",
+      "points": "5 PTS",
+      "p": "-"
+    },
+    {
+      "rank": "25",
       "rider": "B. VEISTROFFER",
       "rider_no": "157",
       "team": "LOTTO INTERMARCHE",
@@ -2771,15 +2787,15 @@
       "p": "-"
     },
     {
-      "rank": "24",
-      "rider": "E. RUBIO",
-      "rider_no": "148",
-      "team": "MOVISTAR TEAM",
+      "rank": "26",
+      "rider": "A. YATES",
+      "rider_no": "8",
+      "team": "UAE TEAM EMIRATES XRG",
       "points": "5 PTS",
       "p": "-"
     },
     {
-      "rank": "25",
+      "rank": "27",
       "rider": "M. VACEK",
       "rider_no": "37",
       "team": "LIDL-TREK",
@@ -2787,15 +2803,7 @@
       "p": "-"
     },
     {
-      "rank": "26",
-      "rider": "F. GROSSSCHARTNER",
-      "rider_no": "3",
-      "team": "UAE TEAM EMIRATES XRG",
-      "points": "4 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "27",
+      "rank": "28",
       "rider": "L. PLAPP",
       "rider_no": "117",
       "team": "TEAM JAYCO ALULA",
@@ -2803,7 +2811,15 @@
       "p": "-"
     },
     {
-      "rank": "28",
+      "rank": "29",
+      "rider": "F. GROSSSCHARTNER",
+      "rider_no": "3",
+      "team": "UAE TEAM EMIRATES XRG",
+      "points": "4 PTS",
+      "p": "-"
+    },
+    {
+      "rank": "30",
       "rider": "V. VAN MECHELEN",
       "rider_no": "78",
       "team": "BAHRAIN VICTORIOUS",
@@ -2811,31 +2827,7 @@
       "p": "-"
     },
     {
-      "rank": "29",
-      "rider": "Q. SIMMONS",
-      "rider_no": "34",
-      "team": "LIDL-TREK",
-      "points": "3 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "30",
-      "rider": "A. JOHANNESSEN",
-      "rider_no": "125",
-      "team": "UNO-X MOBILITY",
-      "points": "3 PTS",
-      "p": "-"
-    },
-    {
       "rank": "31",
-      "rider": "K. VAUQUELIN",
-      "rider_no": "88",
-      "team": "NETCOMPANY INEOS CYCLING TEAM",
-      "points": "3 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "32",
       "rider": "P. CASTRILLO",
       "rider_no": "142",
       "team": "MOVISTAR TEAM",
@@ -2843,19 +2835,27 @@
       "p": "-"
     },
     {
+      "rank": "32",
+      "rider": "A. JOHANNESSEN",
+      "rider_no": "125",
+      "team": "UNO-X MOBILITY",
+      "points": "3 PTS",
+      "p": "-"
+    },
+    {
       "rank": "33",
-      "rider": "F. ENGELHARDT",
-      "rider_no": "114",
-      "team": "TEAM JAYCO ALULA",
+      "rider": "K. VAUQUELIN",
+      "rider_no": "88",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
       "points": "3 PTS",
       "p": "-"
     },
     {
       "rank": "34",
-      "rider": "B. O'CONNOR",
-      "rider_no": "111",
+      "rider": "F. ENGELHARDT",
+      "rider_no": "114",
       "team": "TEAM JAYCO ALULA",
-      "points": "2 PTS",
+      "points": "3 PTS",
       "p": "-"
     },
     {
@@ -2868,17 +2868,17 @@
     },
     {
       "rank": "36",
-      "rider": "L. SLOCK",
-      "rider_no": "155",
-      "team": "LOTTO INTERMARCHE",
+      "rider": "B. O'CONNOR",
+      "rider_no": "111",
+      "team": "TEAM JAYCO ALULA",
       "points": "2 PTS",
       "p": "-"
     },
     {
       "rank": "37",
-      "rider": "F. VAN DEN BROEK",
-      "rider_no": "218",
-      "team": "TEAM PICNIC POSTNL",
+      "rider": "L. SLOCK",
+      "rider_no": "155",
+      "team": "LOTTO INTERMARCHE",
       "points": "2 PTS",
       "p": "-"
     },
@@ -2892,30 +2892,6 @@
     },
     {
       "rank": "39",
-      "rider": "M. SKJELMOSE",
-      "rider_no": "35",
-      "team": "LIDL-TREK",
-      "points": "2 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "40",
-      "rider": "M. JORGENSON",
-      "rider_no": "16",
-      "team": "TEAM VISMA | LEASE A BIKE",
-      "points": "2 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "41",
-      "rider": "L. VAN EETVELT",
-      "rider_no": "156",
-      "team": "LOTTO INTERMARCHE",
-      "points": "2 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "42",
       "rider": "J. AYUSO",
       "rider_no": "31",
       "team": "LIDL-TREK",
@@ -2923,7 +2899,39 @@
       "p": "-"
     },
     {
+      "rank": "40",
+      "rider": "F. VAN DEN BROEK",
+      "rider_no": "218",
+      "team": "TEAM PICNIC POSTNL",
+      "points": "2 PTS",
+      "p": "-"
+    },
+    {
+      "rank": "41",
+      "rider": "M. JORGENSON",
+      "rider_no": "16",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "2 PTS",
+      "p": "-"
+    },
+    {
+      "rank": "42",
+      "rider": "L. VAN EETVELT",
+      "rider_no": "156",
+      "team": "LOTTO INTERMARCHE",
+      "points": "2 PTS",
+      "p": "-"
+    },
+    {
       "rank": "43",
+      "rider": "M. SKJELMOSE",
+      "rider_no": "35",
+      "team": "LIDL-TREK",
+      "points": "2 PTS",
+      "p": "-"
+    },
+    {
+      "rank": "44",
       "rider": "M. PEDERSEN",
       "rider_no": "33",
       "team": "LIDL-TREK",
@@ -2931,7 +2939,7 @@
       "p": "-"
     },
     {
-      "rank": "44",
+      "rank": "45",
       "rider": "M. VAN DER POEL",
       "rider_no": "101",
       "team": "ALPECIN-PREMIER TECH",
@@ -2939,39 +2947,7 @@
       "p": "-"
     },
     {
-      "rank": "45",
-      "rider": "G. BENNETT",
-      "rider_no": "133",
-      "team": "NSN CYCLING TEAM",
-      "points": "1 PT",
-      "p": "-"
-    },
-    {
       "rank": "46",
-      "rider": "A. YATES",
-      "rider_no": "8",
-      "team": "UAE TEAM EMIRATES XRG",
-      "points": "1 PT",
-      "p": "-"
-    },
-    {
-      "rank": "47",
-      "rider": "X. AZPARREN IRURZUN",
-      "rider_no": "172",
-      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
-      "points": "1 PT",
-      "p": "-"
-    },
-    {
-      "rank": "48",
-      "rider": "J. JEGAT",
-      "rider_no": "201",
-      "team": "TOTALENERGIES",
-      "points": "1 PT",
-      "p": "-"
-    },
-    {
-      "rank": "49",
       "rider": "L. VERVAEKE",
       "rider_no": "98",
       "team": "SOUDAL QUICK-STEP",
@@ -2979,7 +2955,15 @@
       "p": "-"
     },
     {
-      "rank": "50",
+      "rank": "47",
+      "rider": "G. STEINHAUSER",
+      "rider_no": "46",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "1 PT",
+      "p": "-"
+    },
+    {
+      "rank": "48",
       "rider": "J. TARLING",
       "rider_no": "87",
       "team": "NETCOMPANY INEOS CYCLING TEAM",
@@ -2987,10 +2971,34 @@
       "p": "-"
     },
     {
+      "rank": "49",
+      "rider": "G. BENNETT",
+      "rider_no": "133",
+      "team": "NSN CYCLING TEAM",
+      "points": "1 PT",
+      "p": "-"
+    },
+    {
+      "rank": "50",
+      "rider": "X. AZPARREN IRURZUN",
+      "rider_no": "172",
+      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
+      "points": "1 PT",
+      "p": "-"
+    },
+    {
       "rank": "51",
-      "rider": "G. STEINHAUSER",
-      "rider_no": "46",
-      "team": "EF EDUCATION - EASYPOST",
+      "rider": "E. COSTIOU",
+      "rider_no": "184",
+      "team": "GROUPAMA-FDJ UNITED",
+      "points": "1 PT",
+      "p": "-"
+    },
+    {
+      "rank": "52",
+      "rider": "J. JEGAT",
+      "rider_no": "201",
+      "team": "TOTALENERGIES",
       "points": "1 PT",
       "p": "-"
     }

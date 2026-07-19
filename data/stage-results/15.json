@@ -137,9 +137,72 @@
       "rider_no": "41",
       "team": "EF EDUCATION - EASYPOST",
       "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "10 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "T. PIDCOCK",
+      "rider_no": "171",
+      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
+      "points": "8 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "Y. VOISARD",
+      "rider_no": "198",
+      "team": "TUDOR PRO CYCLING TEAM",
+      "points": "6 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "A. YATES",
+      "rider_no": "8",
+      "team": "UAE TEAM EMIRATES XRG",
+      "points": "4 PTS"
+    },
+    {
+      "rank": "5",
+      "rider": "E. RUBIO",
+      "rider_no": "148",
+      "team": "MOVISTAR TEAM",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "6",
+      "rider": "E. COSTIOU",
+      "rider_no": "184",
+      "team": "GROUPAMA-FDJ UNITED",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "T. PIDCOCK",
+      "rider_no": "171",
+      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "1 PT"
     }
   ],
   "youth": [],
   "teams": [],
-  "combativity": []
+  "combativity": [
+    {
+      "rank": "1",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK"
+    }
+  ]
 }
