@@ -1,7 +1,7 @@
 {
   "stage": 15,
   "_meta": {
-    "updated": "2026-07-19T16:29:04.413439+00:00"
+    "updated": "2026-07-19T17:35:46.528330+00:00"
   },
   "gc": [
     {
@@ -2590,19 +2590,19 @@
     },
     {
       "rank": "7",
-      "rider": "T. PIDCOCK",
-      "rider_no": "171",
-      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
-      "points": "28 PTS",
-      "p": "-"
-    },
-    {
-      "rank": "8",
       "rider": "L. MARTINEZ",
       "rider_no": "71",
       "team": "BAHRAIN VICTORIOUS",
       "points": "22 PTS",
       "p": "-"
+    },
+    {
+      "rank": "8",
+      "rider": "T. PIDCOCK",
+      "rider_no": "171",
+      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
+      "points": "20 PTS",
+      "p": "P : 8"
     },
     {
       "rank": "9",
