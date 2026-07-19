@@ -1,8 +1,144 @@
 {
   "stage": 15,
   "result": [],
-  "points": [],
-  "mountains": [],
+  "points": [
+    {
+      "rank": "1",
+      "rider": "J. PHILIPSEN",
+      "rider_no": "105",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "25 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "2",
+      "rider": "M. PEDERSEN",
+      "rider_no": "33",
+      "team": "LIDL-TREK",
+      "points": "20 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "3",
+      "rider": "M. KANTER",
+      "rider_no": "64",
+      "team": "XDS ASTANA TEAM",
+      "points": "16 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "4",
+      "rider": "B. GIRMAY",
+      "rider_no": "131",
+      "team": "NSN CYCLING TEAM",
+      "points": "14 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "5",
+      "rider": "J. STEWART",
+      "rider_no": "137",
+      "team": "NSN CYCLING TEAM",
+      "points": "12 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "6",
+      "rider": "E. RUBIO",
+      "rider_no": "148",
+      "team": "MOVISTAR TEAM",
+      "points": "10 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "7",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "9 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "8",
+      "rider": "E. PLANCKAERT",
+      "rider_no": "106",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "8 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "9",
+      "rider": "D. BALLERINI",
+      "rider_no": "62",
+      "team": "XDS ASTANA TEAM",
+      "points": "7 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "10",
+      "rider": "B. ARMIRAIL",
+      "rider_no": "13",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "6 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "11",
+      "rider": "J. RICKAERT",
+      "rider_no": "107",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "5 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "12",
+      "rider": "J. CEPEDA",
+      "rider_no": "143",
+      "team": "MOVISTAR TEAM",
+      "points": "4 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "13",
+      "rider": "F. GANNA",
+      "rider_no": "84",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "3 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "14",
+      "rider": "R. STANNARD",
+      "rider_no": "76",
+      "team": "BAHRAIN VICTORIOUS",
+      "points": "2 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "15",
+      "rider": "M. VACEK",
+      "rider_no": "37",
+      "team": "LIDL-TREK",
+      "points": "1 PT",
+      "b": "-"
+    }
+  ],
+  "mountains": [
+    {
+      "rank": "1",
+      "rider": "V. PARET PEINTRE",
+      "rider_no": "93",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "1 PT"
+    }
+  ],
   "youth": [],
   "teams": [],
   "combativity": []
