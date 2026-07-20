@@ -182,7 +182,7 @@ main{max-width:800px;margin:0 auto;padding:24px 16px 60px}
 <main id="app">
   <div class="loading">Loading race data…</div>
 </main>
-<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.11</footer>
+<footer style="text-align:center;padding:20px;font-size:11px;color:#2a2a2a;letter-spacing:1px">v2.12</footer>
 
 <script>
 const TERRAIN_LABEL = { flat:'Flat', hilly:'Hilly', mountain:'Mountains', itt:'Individual Time Trial', ttt:'Team Time Trial', rest:'Rest Day' };
@@ -601,17 +601,26 @@ async function renderDashboard(){
   }
   const todayLive = mockLive || !!(realTodayStage && todayStartDt && now >= todayStartDt && !todayConcluded);
 
+  // The group/gap/zoom logic assumes a mass-start field (peloton +
+  // breakaway/groupetto). None of that holds on a time trial — riders go
+  // off solo at intervals, so "largest cluster = peloton" and a
+  // road-distance-based gap estimate are both meaningless there. Skip
+  // the tracker entirely on itt/ttt days rather than show something
+  // that looks broken; the plain status line below calls out the TT
+  // explicitly instead.
+  const isTimeTrial = !!(realTodayStage && (realTodayStage.type === 'itt' || realTodayStage.type === 'ttt'));
+
   // Real ASO telemetry only exists while a stage is physically rolling —
   // todayLive above is a clock guess, this is the authoritative check.
   let liveTelemetry = null, liveRoster = null;
-  if(todayLive){
+  if(todayLive && !isTimeTrial){
     if(mockLive){ liveTelemetry = mockTelemetry(realTodayStage.distanceKm); liveRoster = mockRoster(); }
     else {
       liveTelemetry = await fetchTelemetry();
       if(liveTelemetry && liveTelemetry.RaceStatus && liveTelemetry.Riders && liveTelemetry.Riders.length) liveRoster = await fetchRoster();
     }
   }
-  const liveTrackerActive = !!(todayLive && liveTelemetry && liveTelemetry.RaceStatus && liveTelemetry.Riders && liveTelemetry.Riders.length);
+  const liveTrackerActive = !!(todayLive && !isTimeTrial && liveTelemetry && liveTelemetry.RaceStatus && liveTelemetry.Riders && liveTelemetry.Riders.length);
   // Covers both "hasn't started yet" and "on the road right now" — in
   // both cases today's own stage stays the focus rather than jumping
   // ahead to tomorrow's countdown.
@@ -643,7 +652,9 @@ async function renderDashboard(){
       <div id="live-tracker-slot">
         ${liveTrackerActive
           ? renderLiveTrackerHtml(realTodayStage, liveTelemetry, liveRoster)
-          : `<div class="live-status">Stage ${realTodayStage.n} is underway — on the road for ${elapsedLabel(todayStartDt, now)}</div>`}
+          : isTimeTrial
+            ? `<div class="live-status">${TERRAIN_LABEL[realTodayStage.type]} underway — riders set off solo at intervals, ${elapsedLabel(todayStartDt, now)} into the stage window</div>`
+            : `<div class="live-status">Stage ${realTodayStage.n} is underway — on the road for ${elapsedLabel(todayStartDt, now)}</div>`}
       </div>
       ${dramaValid ? `<div class="drama-blurb"><div class="drama-label">What to watch for</div>${drama.text}</div>` : ''}
     </div>`;

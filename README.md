@@ -74,6 +74,8 @@ The group-position bar is a proportional zoom, not the full stage: the groups oc
 
 Not yet built: the event ticker (breakaway formed, jersey changes, crashes) sourced from Bluesky/journalist chatter — deliberately deferred; see Possible follow-ups.
 
+**Time trials (ITT/TTT) are excluded on purpose.** The group/gap/zoom logic assumes a mass-start field with a peloton, a breakaway, and a groupetto — none of that exists on a time trial, where riders start solo at intervals. Rather than mislabel whichever pair of riders happens to be closest together as "Peloton," or show a road-distance-based gap estimate that doesn't mean what it looks like it means, the tracker is skipped entirely on `itt`/`ttt` stage days. The card falls back to a plain status line that calls out the time-trial format explicitly (e.g. "Individual Time Trial underway — riders set off solo at intervals...") rather than the generic "Stage N is underway" text. A dedicated time-trial view (per-rider provisional gap to the current best time) would be a separate feature, not a variation of this one.
+
 ---
 
 ## Data pipeline
