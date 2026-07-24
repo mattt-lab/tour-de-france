@@ -1,7 +1,128 @@
 {
   "stage": 19,
   "result": [],
-  "points": [],
+  "points": [
+    {
+      "rank": "1",
+      "rider": "M. PEDERSEN",
+      "rider_no": "33",
+      "team": "LIDL-TREK",
+      "points": "25 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "2",
+      "rider": "M. MATTHEWS",
+      "rider_no": "115",
+      "team": "TEAM JAYCO ALULA",
+      "points": "20 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "3",
+      "rider": "T. FOSS",
+      "rider_no": "83",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "16 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "4",
+      "rider": "M. VACEK",
+      "rider_no": "37",
+      "team": "LIDL-TREK",
+      "points": "14 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "5",
+      "rider": "B. ARMIRAIL",
+      "rider_no": "13",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "12 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "6",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "10 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "7",
+      "rider": "A. BAUDIN",
+      "rider_no": "43",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "9 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "8",
+      "rider": "R. GARCIA",
+      "rider_no": "144",
+      "team": "MOVISTAR TEAM",
+      "points": "8 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "9",
+      "rider": "P. CASTRILLO",
+      "rider_no": "142",
+      "team": "MOVISTAR TEAM",
+      "points": "7 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "10",
+      "rider": "T. ARENSMAN",
+      "rider_no": "82",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "6 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "11",
+      "rider": "S. KUSS",
+      "rider_no": "17",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "5 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "12",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "4 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "13",
+      "rider": "S. QUINN",
+      "rider_no": "45",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "3 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "14",
+      "rider": "T. BENOOT",
+      "rider_no": "52",
+      "team": "DECATHLON CMA CGM TEAM",
+      "points": "2 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "15",
+      "rider": "M. RICCITELLO",
+      "rider_no": "58",
+      "team": "DECATHLON CMA CGM TEAM",
+      "points": "1 PT",
+      "b": "-"
+    }
+  ],
   "mountains": [
     {
       "rank": "1",
@@ -44,6 +165,62 @@
       "rider_no": "41",
       "team": "EF EDUCATION - EASYPOST",
       "points": "8 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "T. ARENSMAN",
+      "rider_no": "82",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "6 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "Q. SIMMONS",
+      "rider_no": "34",
+      "team": "LIDL-TREK",
+      "points": "4 PTS"
+    },
+    {
+      "rank": "5",
+      "rider": "S. KUSS",
+      "rider_no": "17",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "6",
+      "rider": "M. RICCITELLO",
+      "rider_no": "58",
+      "team": "DECATHLON CMA CGM TEAM",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "5 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "B. ARMIRAIL",
+      "rider_no": "13",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "3 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "T. FOSS",
+      "rider_no": "83",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "T. ARENSMAN",
+      "rider_no": "82",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "1 PT"
     }
   ],
   "youth": [],
