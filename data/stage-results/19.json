@@ -1,0 +1,52 @@
+{
+  "stage": 19,
+  "result": [],
+  "points": [],
+  "mountains": [
+    {
+      "rank": "1",
+      "rider": "V. PARET PEINTRE",
+      "rider_no": "93",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "5 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "3 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "A. JOHANNESSEN",
+      "rider_no": "125",
+      "team": "UNO-X MOBILITY",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "T. FOSS",
+      "rider_no": "83",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "V. PARET PEINTRE",
+      "rider_no": "93",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "10 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "8 PTS"
+    }
+  ],
+  "youth": [],
+  "teams": [],
+  "combativity": []
+}
