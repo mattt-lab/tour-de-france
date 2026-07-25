@@ -1,0 +1,24 @@
+{
+  "stage": 20,
+  "result": [],
+  "points": [],
+  "mountains": [
+    {
+      "rank": "1",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "20 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "V. PARET PEINTRE",
+      "rider_no": "93",
+      "team": "SOUDAL QUICK-STEP",
+      "points": "15 PTS"
+    }
+  ],
+  "youth": [],
+  "teams": [],
+  "combativity": []
+}
