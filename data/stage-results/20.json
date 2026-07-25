@@ -179,6 +179,104 @@
       "rider_no": "83",
       "team": "NETCOMPANY INEOS CYCLING TEAM",
       "points": "2 PTS"
+    },
+    {
+      "rank": "1",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "10 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "D. PIGANZOLI",
+      "rider_no": "18",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "8 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "T. FOSS",
+      "rider_no": "83",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "6 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "J. HINDLEY",
+      "rider_no": "24",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "points": "4 PTS"
+    },
+    {
+      "rank": "5",
+      "rider": "S. KUSS",
+      "rider_no": "17",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "2 PTS"
+    },
+    {
+      "rank": "6",
+      "rider": "T. JOHANNESSEN",
+      "rider_no": "121",
+      "team": "UNO-X MOBILITY",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "R. CARAPAZ",
+      "rider_no": "41",
+      "team": "EF EDUCATION - EASYPOST",
+      "points": "20 PTS"
+    },
+    {
+      "rank": "2",
+      "rider": "S. KUSS",
+      "rider_no": "17",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "15 PTS"
+    },
+    {
+      "rank": "3",
+      "rider": "J. HINDLEY",
+      "rider_no": "24",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "points": "12 PTS"
+    },
+    {
+      "rank": "4",
+      "rider": "M. RICCITELLO",
+      "rider_no": "58",
+      "team": "DECATHLON CMA CGM TEAM",
+      "points": "10 PTS"
+    },
+    {
+      "rank": "5",
+      "rider": "J. AYUSO",
+      "rider_no": "31",
+      "team": "LIDL-TREK",
+      "points": "8 PTS"
+    },
+    {
+      "rank": "6",
+      "rider": "T. ARENSMAN",
+      "rider_no": "82",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "6 PTS"
+    },
+    {
+      "rank": "7",
+      "rider": "D. PIGANZOLI",
+      "rider_no": "18",
+      "team": "TEAM VISMA | LEASE A BIKE",
+      "points": "4 PTS"
+    },
+    {
+      "rank": "8",
+      "rider": "T. JOHANNESSEN",
+      "rider_no": "121",
+      "team": "UNO-X MOBILITY",
+      "points": "2 PTS"
     }
   ],
   "youth": [],
