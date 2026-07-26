@@ -1,0 +1,145 @@
+{
+  "stage": 21,
+  "result": [],
+  "points": [
+    {
+      "rank": "1",
+      "rider": "B. VEISTROFFER",
+      "rider_no": "157",
+      "team": "LOTTO INTERMARCHE",
+      "points": "25 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "2",
+      "rider": "X. AZPARREN IRURZUN",
+      "rider_no": "172",
+      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
+      "points": "20 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "3",
+      "rider": "W. BARGUIL",
+      "rider_no": "211",
+      "team": "TEAM PICNIC POSTNL",
+      "points": "16 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "4",
+      "rider": "M. SKJELMOSE",
+      "rider_no": "35",
+      "team": "LIDL-TREK",
+      "points": "14 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "5",
+      "rider": "M. PEDERSEN",
+      "rider_no": "33",
+      "team": "LIDL-TREK",
+      "points": "12 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "6",
+      "rider": "K. NEILANDS",
+      "rider_no": "136",
+      "team": "NSN CYCLING TEAM",
+      "points": "10 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "7",
+      "rider": "L. PLAPP",
+      "rider_no": "117",
+      "team": "TEAM JAYCO ALULA",
+      "points": "9 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "8",
+      "rider": "P. BITTNER",
+      "rider_no": "213",
+      "team": "TEAM PICNIC POSTNL",
+      "points": "8 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "9",
+      "rider": "J. BIERMANS",
+      "rider_no": "164",
+      "team": "COFIDIS",
+      "points": "7 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "10",
+      "rider": "J. AYUSO",
+      "rider_no": "31",
+      "team": "LIDL-TREK",
+      "points": "6 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "11",
+      "rider": "N. OLIVEIRA",
+      "rider_no": "146",
+      "team": "MOVISTAR TEAM",
+      "points": "5 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "12",
+      "rider": "M. FRIGO",
+      "rider_no": "134",
+      "team": "NSN CYCLING TEAM",
+      "points": "4 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "13",
+      "rider": "N. DENZ",
+      "rider_no": "23",
+      "team": "RED BULL - BORA - HANSGROHE",
+      "points": "3 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "14",
+      "rider": "E. BERNAL",
+      "rider_no": "81",
+      "team": "NETCOMPANY INEOS CYCLING TEAM",
+      "points": "2 PTS",
+      "b": "-"
+    },
+    {
+      "rank": "15",
+      "rider": "X. MEURISSE",
+      "rider_no": "176",
+      "team": "PINARELLO-Q36.5 PRO CYCLING TEAM",
+      "points": "1 PT",
+      "b": "-"
+    }
+  ],
+  "mountains": [
+    {
+      "rank": "1",
+      "rider": "M. PEDERSEN",
+      "rider_no": "33",
+      "team": "LIDL-TREK",
+      "points": "1 PT"
+    },
+    {
+      "rank": "1",
+      "rider": "M. VAN DER POEL",
+      "rider_no": "101",
+      "team": "ALPECIN-PREMIER TECH",
+      "points": "1 PT"
+    }
+  ],
+  "youth": [],
+  "teams": [],
+  "combativity": []
+}
