@@ -2,6 +2,11 @@
 
 > A live Tour de France companion — stage storylines, the four jerseys, and the road ahead, all in one dark-mode dashboard.
 
+**Live site:** https://mattt-lab.github.io/tour-de-france/tdf-dashboard.html
+
+> **STATUS: FROZEN — 2026 Tour complete.**
+> The site displays the final race result (Stage 21, Paris, 2026-07-26) and remains fully browsable. The data pipeline cron is disabled. See [Reactivating for 2027](#reactivating-for-2027) to bring it back to life.
+
 ---
 
 ## What it does
@@ -56,7 +61,7 @@ GET hop2_url
 
 Route, climbs, and stage storylines (`data/route.json`) are hand-curated — the full 21-stage route is published before the race starts and doesn't change, so it's committed as static data rather than scraped.
 
-**No runtime server** for any of the above — all pages are static HTML/CSS/JS; data is fetched client-side from committed JSON at load time. `scripts/fetch_data.py` runs on a schedule via GitHub Actions and commits its output back to the repo. (The live tracker below is the one exception — see why.)
+**No runtime server** for any of the above — all pages are static HTML/CSS/JS; data is fetched client-side from committed JSON at load time. `scripts/fetch_data.py` ran on a schedule via GitHub Actions and committed its output back to the repo during the race; that cron is now disabled (see the FROZEN notice above). (The live tracker below was the one exception — see why.)
 
 ---
 
@@ -81,7 +86,7 @@ Not yet built: the event ticker (breakaway formed, jersey changes, crashes) sour
 ## Data pipeline
 
 ```
-GitHub Actions (every 10 min)
+GitHub Actions cron (every 10 min during the race; DISABLED post-race)
     ├─ scripts/fetch_data.py
     │     ├─ skips entirely on non-stage days if standings were
     │     │  refreshed within the last 20h (rest days / off days)
@@ -151,13 +156,13 @@ python scripts/fetch_data.py
 
 ---
 
-## Setup (GitHub Pages)
+## Setup (for a future Tour)
 
 1. Push this repo to GitHub.
 2. Enable GitHub Pages (Settings → Pages → Deploy from branch: `main`, root `/`).
 3. Add an `ANTHROPIC_API_KEY` repo secret (Settings → Secrets and variables → Actions) if you want the AI-written "what to watch for" blurb — without it, `fetch_drama.py` still runs and falls back to a plain headline stitch.
-4. Trigger the `Update Tour de France Data` workflow manually once to seed the JSON files (or just wait for the next scheduled run).
-5. Deploy `cloudflare/tdf-telemetry-proxy.js` to a free Cloudflare Workers account (see the comment block at the top of that file) and paste the resulting URL into the `TDF_PROXY` constant in `tdf-dashboard.html` — needed only for the live in-race tracker; everything else works without it.
+4. Deploy `cloudflare/tdf-telemetry-proxy.js` to a free Cloudflare Workers account (see the comment block at the top of that file) and paste the resulting URL into the `TDF_PROXY` constant in `tdf-dashboard.html` — needed only for the live in-race tracker; everything else works without it.
+5. Follow the reactivation steps below, then trigger the `Update Tour de France Data` workflow manually once to seed the JSON files.
 
 Since each blurb only generates once per stage, to force a fresh one on demand rather than deleting the JSON by hand: Actions tab → **Update Tour de France Data** → **Run workflow** → check **force_drama** (next-stage preview) and/or **force_recap** (last-stage recap).
 
@@ -180,6 +185,63 @@ Since each blurb only generates once per stage, to force a fresh one on demand r
 
 - Abandon/DNF tracking for the team & rider status view.
 - Event ticker on the live tracker (breakaway formed, jersey changes, crashes) sourced from Bluesky/journalist chatter — deliberately deferred out of the initial live-tracker build.
+
+---
+
+## Reactivating for 2027
+
+The following changes were made on **2026-07-28** to freeze the project. Reverse/redo them when setting up for the next Tour.
+
+### 1. Re-enable the cron (`.github/workflows/update-data.yml`)
+
+```yaml
+# Change this:
+on:
+  # FROZEN 2026-07-28: cron disabled — Tour complete (Stage 21, Paris, 2026-07-26).
+  # To reactivate for 2027, uncomment the schedule block below.
+  # schedule:
+  #   - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+# Back to this:
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Every 10 min all day; script exits early on non-stage days
+  workflow_dispatch:
+```
+
+### 2. Rebuild the season's route data
+
+Unlike the standings/results (scraped live), the route itself has no automated source and is entirely specific to the 2026 route:
+
+- `data/route.json` — hand-curated stage-by-stage route, climbs, and storylines. Rewrite by hand from the official 2027 route announcement, following the existing field structure (`n`, `date`, `start`, `finish`, `distanceKm`, `type`, `climbs[]`, `storyline`).
+- `data/stage-times.json` — real per-stage local start times. Re-run `scripts/fetch_stage_times.py` once the 2027 itinerary is published on letour.fr.
+- `data/profiles.json` — official elevation profile image URLs per stage. Re-run `scripts/fetch_stage_profiles.py`.
+- `data/geo.json` — town → lat/lon geocoding, a one-off input used while building the route map. Re-run `scripts/geocode_stages.py` if needed.
+- `assets/route-map.jpg` + `data/route-map-paths.json` — the official ASO route poster and its per-stage bounding boxes are entirely specific to the published route graphic; both need retracing against the new poster once ASO publishes it (this was originally done stage-by-stage by comparing the poster image against each stage's start/finish cities).
+
+### 3. Bump `TDF_YEAR` in `tdf-dashboard.html`
+
+The live in-race tracker's Cloudflare Worker calls (`telemetryCompetitor-${TDF_YEAR}`, `allCompetitors-${TDF_YEAR}`, `team-${TDF_YEAR}`) are the only places the year is parameterized in code — change the `const TDF_YEAR = 2026;` line near the top of the script. `cloudflare/tdf-telemetry-proxy.js` itself needs **no changes** — it's a generic path-forwarder, not year-specific.
+
+### 4. Review `TEAM_COLORS` in `tdf-standings.html`
+
+Team rosters and sponsors can change between seasons — check the 23-team color map against the new season's WorldTour team list and update any renamed, new, or dropped teams.
+
+### 5. Clear stale data files
+
+```
+data/standings.json
+data/drama.json
+data/recap.json
+data/stage-results/   (all files)
+```
+
+(`route.json`, `stage-times.json`, `profiles.json`, `geo.json`, and `route-map-paths.json` get *replaced* per step 2 above, not just cleared.)
+
+### 6. Version numbers and analytics (optional)
+
+Each page carries its own version footer — bump it if you want a visible marker for the new season. The GA4 property (`G-9K08FK3SWH`) is intentionally shared across this project and its sibling F1/World Cup dashboards — no change needed unless you want separate analytics for this one.
 
 ---
 

@@ -1,8 +1,10 @@
 name: Update Tour de France Data
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'  # Every 10 min all day; script exits early on non-stage days
+  # FROZEN 2026-07-28: cron disabled — Tour complete (Stage 21, Paris, 2026-07-26).
+  # To reactivate for 2027, uncomment the schedule block below.
+  # schedule:
+  #   - cron: '*/10 * * * *'  # Every 10 min all day; script exits early on non-stage days
   workflow_dispatch:
     inputs:
       force_drama:
